@@ -6,3 +6,13 @@ channels:
 dependencies:
   - fastqc=0.11.7
   - multiqc=1.5
+  - sra-tools=2.8.2
+  - trim-galore=0.4.4
+  - trimmomatic=0.36
+  - fastqc=0.11.7
+  - multiqc=1.5
+  - bowtie2=2.3.0
+  - samtools=1.3.1
+  - bedtools=2.25.0
+  - igvtools=2.3.75
+  - macs2=2.1.1.20160309
