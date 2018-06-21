@@ -1,0 +1,22 @@
+{
+    "atac.pipeline_type" : "atac",
+    "atac.genome_tsv" : "/users/leepc12/code/atac-seq-pipeline/genome/mm10_klab.tsv",
+    "atac.tas" : [
+        "/srv/scratch/leepc12/run/atac-seq-pipeline-test-data/ENCSR889WQX/cromwell-executions/atac/837ca365-847c-4a33-8f5d-7d68dff84c94/call-bam2ta/shard-0/execution/ENCFF439VSY.subsampled.400.trim.merged.nodup.tn5.tagAlign.gz"
+    ],
+
+    "atac.align_only" : true,
+    "atac.filter.no_dup_removal" : true,
+    "atac.paired_end" : false,
+    "atac.multimapping" : 4,    
+    "atac.xcor.subsample" : 90000,
+
+    "atac.trim_adapter.auto_detect_adapter" : true,
+
+    "atac.smooth_win" : 73,
+    "atac.enable_idr" : true,
+    "atac.idr_thresh" : 0.05,
+
+    "atac.qc_report.name" : "ENCSR889WQX (subsampled to 1/400 reads, no_dup_removal)",
+    "atac.qc_report.desc" : "ATAC-seq on Mus musculus C57BL/6 frontal cortex adult"
+}

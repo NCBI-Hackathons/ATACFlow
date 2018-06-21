@@ -1,5 +1,5 @@
 # NCBI-Hackathons/ATACFlow
-This pipeline performs ATAC C Seq using Nextflow
+This pipeline performs ATACSeq using Nextflow
 
 [![Build Status](https://travis-ci.org/NCBI-Hackathons/ATACFlow.svg?branch=master)](https://travis-ci.org/NCBI-Hackathons/ATACFlow)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.30.0-brightgreen.svg)](https://www.nextflow.io/)
@@ -27,4 +27,11 @@ The NCBI-Hackathons/ATACFlow pipeline comes with documentation about the pipelin
 5. [Troubleshooting](docs/troubleshooting.md)
 
 ### Credits
-This pipeline was written by ATACFlow Team @ RMGCH-18 ([NCBI-Hackathons](https://github.com/NCBI-Hackathons)) at [Your Institute](http://www.yourinstitute.com).
+This pipeline was written by ATACFlow Team @ RMGCH-18 ([NCBI-Hackathons](https://github.com/NCBI-Hackathons)).
+
+* Ignacio Tripodi (ignacio.tripodi at colorado.edu): Computer Scientist, closet wet-lab enthusiast
+* Steve Tsang (hsinyi.tsang at nih.gov): Computational Biologist
+* Julie Garcia (julie.perilla at gmail.com): 
+* Jingjing Zhao (jjzhao123 at gmail.com):
+* Evan Floden (evanfloden at gmail.com): Workflow Wrangler
+* Chi Zhang (chzh1418 at colorado.edu)

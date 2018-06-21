@@ -7,7 +7,13 @@
  #### Homepage / Documentation
  https://github.com/NCBI-Hackathons/ATACFlow
  #### Authors
- ATACFlow Team @ RMGCH-18 NCBI-Hackathons <evanfloden@gmail.com> - https://github.com/NCBI-Hackathons>
+ ATACFlow Team @ RMGCH-18 NCBI-Hackathons - https://github.com/NCBI-Hackathons>
+ Ignacio Tripodi <ignacio.tripodi@colorado.edu>
+ Julie Garcia <julie.perilla@gmail.com>
+ Steve Tsang <stevehtsang@gmail.com>
+ Jingjing Zhao <jjzhao123@gmail.com>
+ Evan Floden <evanfloden@gmail.com> 
+ Chi Zhang <chzh1418@colorado.edu>
 ----------------------------------------------------------------------------------------
 */
 

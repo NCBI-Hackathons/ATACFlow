@@ -1,0 +1,22 @@
+{
+    "atac.pipeline_type" : "atac",
+    "atac.genome_tsv" : "/users/leepc12/code/atac-seq-pipeline/genome/hg38_klab.tsv",
+    "atac.nodup_bams" : [
+        "/srv/scratch/leepc12/run/atac-seq-pipeline-test-data/ENCSR356KRQ/cromwell-executions/atac/568dcea1-7044-4fba-b275-fe8665ed0498/call-filter/shard-0/execution/ENCFF341MYG.subsampled.400.trim.merged.nodup.bam"
+    ],
+
+    "atac.align_only" : true,
+    "atac.filter.no_dup_removal" : true,
+    "atac.paired_end" : true,
+    "atac.multimapping" : 4,
+    "atac.bam2ta.subsample" : 80000,
+
+    "atac.trim_adapter.auto_detect_adapter" : true,
+
+    "atac.smooth_win" : 73,
+    "atac.enable_idr" : true,
+    "atac.idr_thresh" : 0.05,
+
+    "atac.qc_report.name" : "ENCSR356KRQ (subsampled to 1/400 reads, no_dup_removal)",
+    "atac.qc_report.desc" : "ATAC-seq on primary keratinocytes in day 0.0 of differentiation"
+}

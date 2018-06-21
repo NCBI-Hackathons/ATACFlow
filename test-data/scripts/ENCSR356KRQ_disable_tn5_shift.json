@@ -1,0 +1,20 @@
+{
+    "atac.pipeline_type" : "dnase",
+    "atac.genome_tsv" : "/mnt/data/pipeline_genome_data/hg38_chr19_chrM/hg38_chr19_chrM_local.tsv",
+    "atac.nodup_bams" : [
+        "/users/leepc12/code/atac-seq-pipeline-test-data/input/pe/nodup_bams/rep1/ENCFF341MYG.subsampled.400.trim.merged.nodup.bam"
+    ],
+
+    "atac.align_only" : true,
+    "atac.paired_end" : true,
+    "atac.multimapping" : 4,
+
+    "atac.trim_adapter.auto_detect_adapter" : true,
+
+    "atac.smooth_win" : 73,
+    "atac.enable_idr" : true,
+    "atac.idr_thresh" : 0.05,
+
+    "atac.qc_report.name" : "ENCSR356KRQ (subsampled to 1/400 reads, disable_tn5_shift)",
+    "atac.qc_report.desc" : "ATAC-seq on primary keratinocytes in day 0.0 of differentiation"
+}

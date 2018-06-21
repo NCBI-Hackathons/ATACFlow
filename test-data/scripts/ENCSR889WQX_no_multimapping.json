@@ -1,0 +1,24 @@
+{
+    "atac.pipeline_type" : "atac",
+    "atac.genome_tsv" : "/mnt/data/pipeline_genome_data/mm10_chr19_chrM/mm10_chr19_chrM_local.tsv",
+    "atac.fastqs" : [
+        [
+            ["/mnt/data/pipeline_test_samples/encode-atac-seq-pipeline/ENCSR889WQX/fastq/rep1/ENCFF439VSY.subsampled.400.fastq.gz"],
+            ["/mnt/data/pipeline_test_samples/encode-atac-seq-pipeline/ENCSR889WQX/fastq/rep1/ENCFF325FCQ.subsampled.400.fastq.gz"],
+            ["/mnt/data/pipeline_test_samples/encode-atac-seq-pipeline/ENCSR889WQX/fastq/rep1/ENCFF683IQS.subsampled.400.fastq.gz"],
+            ["/mnt/data/pipeline_test_samples/encode-atac-seq-pipeline/ENCSR889WQX/fastq/rep1/ENCFF744CHW.subsampled.400.fastq.gz"]
+        ],
+        [
+            ["/mnt/data/pipeline_test_samples/encode-atac-seq-pipeline/ENCSR889WQX/fastq/rep2/ENCFF463QCX.subsampled.400.fastq.gz"],
+            ["/mnt/data/pipeline_test_samples/encode-atac-seq-pipeline/ENCSR889WQX/fastq/rep2/ENCFF992TSA.subsampled.400.fastq.gz"]
+        ]
+    ],
+    "atac.paired_end" : false,
+    "atac.align_only" : true,
+    "atac.trim_adapter.auto_detect_adapter" : true,
+    "atac.smooth_win" : 73,
+    "atac.enable_idr" : true,
+    "atac.idr_thresh" : 0.05,
+    "atac.qc_report.name" : "ENCSR889WQX (subsampled to 1/400 reads)",
+    "atac.qc_report.desc" : "ATAC-seq on Mus musculus C57BL/6 frontal cortex adult"
+}

@@ -1,0 +1,22 @@
+{
+    "atac.pipeline_type" : "atac",
+    "atac.genome_tsv" : "/mnt/data/pipeline_genome_data/mm10_chr19_chrM/mm10_chr19_chrM_local.tsv",
+    "atac.tas" : [
+        "/users/leepc12/code/atac-seq-pipeline-test-data/input/se/tas/rep1/ENCFF439VSY.subsampled.400.trim.merged.nodup.tn5.tagAlign.gz"
+    ],
+
+    "atac.align_only" : true,
+    "atac.filter.no_dup_removal" : true,
+    "atac.paired_end" : false,
+    "atac.multimapping" : 4,    
+    "atac.xcor.subsample" : 5000,
+
+    "atac.trim_adapter.auto_detect_adapter" : true,
+
+    "atac.smooth_win" : 73,
+    "atac.enable_idr" : true,
+    "atac.idr_thresh" : 0.05,
+
+    "atac.qc_report.name" : "ENCSR889WQX (subsampled to 1/400 reads, no_dup_removal)",
+    "atac.qc_report.desc" : "ATAC-seq on Mus musculus C57BL/6 frontal cortex adult"
+}
