@@ -28,3 +28,5 @@ The NCBI-Hackathons/ATACFlow pipeline comes with documentation about the pipelin
 
 ### Credits
 This pipeline was written by ATACFlow Team @ RMGCH-18 ([NCBI-Hackathons](https://github.com/NCBI-Hackathons)) at [Your Institute](http://www.yourinstitute.com).
+
+* Ignacio Tripodi (ignacio.tripodi at colorado.edu): Computer Scientist, closet wet-lab enthusiast
