@@ -72,6 +72,16 @@ if ( params.fasta ){
     fasta = file(params.fasta)
     if( !fasta.exists() ) exit 1, "Fasta file not found: ${params.fasta}"
 }
+
+
+if ( params.bt2index ){
+    bt2_index = file("${params.bt2index}.fa")
+    bt2_indices = Channel.fromPath( "${params.bt2index}*.bt2" ).toList()
+    if( !bt2_index.exists() ) exit 1, "Reference genome Bowtie 2 not found: ${params.bt2index}"
+}
+
+bt2_indices.view()
+
 //
 // NOTE - THIS IS NOT USED IN THIS PIPELINE, EXAMPLE ONLY
 // If you want to use the above in a process, define the following:
@@ -238,6 +248,25 @@ process fastqc {
 }
 
 
+/*
+ * STEP 2 - Build Bowtie2 Index
+ *
+ * process buildIndex {
+ *   tag "$genome_file.baseName"
+ *   
+ *   input:
+ *   file genome from genome_file
+ *    
+ *   output:
+ *   file 'genome.index*' into genome_index
+
+    
+       
+ *   """
+ *   bowtie2-build --threads ${task.cpus} ${genome} genome.index
+ *   """
+ *   }
+ */
 
 
 /*
