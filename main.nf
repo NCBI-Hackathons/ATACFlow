@@ -232,22 +232,23 @@ process multiqc {
 
 /*
  * STEP 3 - Output Description HTML
- */
-process output_documentation {
-    tag "$prefix"
-    publishDir "${params.outdir}/Documentation", mode: 'copy'
-
-    input:
-    file output_docs
-
-    output:
-    file "results_description.html"
-
-    script:
-    """
-    markdown_to_html.r $output_docs results_description.html
-    """
-}
+ *
+*
+*process output_documentation {
+*    tag "$prefix"
+*    publishDir "${params.outdir}/Documentation", mode: 'copy'
+*
+*    input:
+*    file output_docs
+*
+*    output:
+*    file "results_description.html"
+*
+*    script:
+*    """
+*    markdown_to_html.r $output_docs results_description.html
+*    """
+*}
 
 
 
