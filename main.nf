@@ -10,7 +10,7 @@
  ATACFlow Team @ RMGCH-18 NCBI-Hackathons - https://github.com/NCBI-Hackathons>
  Ignacio Tripodi <ignacio.tripodi@colorado.edu>
  Julie Garcia <julie.perilla@gmail.com>
- Steve Tsang <>
+ Steve Tsang <stevehtsang@gmail.com>
  Jingjing Zhao <jjzhao123@gmail.com>
  Evan Floden <evanfloden@gmail.com> 
  Chi Zhang <chzh1418@colorado.edu>
