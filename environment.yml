@@ -14,3 +14,4 @@ dependencies:
   - bedtools=2.25.0
   - igvtools=2.3.75
   - macs2=2.1.1.20160309
+  - openjdk
