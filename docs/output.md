@@ -1,5 +1,5 @@
 # NCBI-Hackathons/ATACFlow
-This pipeline performs ATAC C Seq using Nextflow
+This pipeline performs ATAC Seq using Nextflow
 
 This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
 
@@ -33,3 +33,6 @@ For further reading and documentation see the [FastQC help](http://www.bioinform
   * Directory containing parsed statistics from the different tools used in the pipeline
 
 For more information about how to use MultiQC reports, see http://multiqc.info
+
+## bowtie2
+[bowtie2](http://bowtie-bio.sf.net/bowtie2)
