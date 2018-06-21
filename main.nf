@@ -182,6 +182,33 @@ process get_software_versions {
 }
 
 
+/*
+ * STEP 0 - Trim Galore
+ */
+
+process trim_galore {
+    tag "$name"
+
+    input:
+    set val(name), file(reads) from read_files_trimming
+
+    output:
+    file "*fq.gz" into trimmed_reads
+    file "*trimming_report.txt" into trimgalore_results
+    file "*_fastqc.{zip,html}" into trimgalore_fastqc_reports
+
+    script:
+    if (params.singleEnd) {
+        """
+        trim_galore --fastqc --gzip $reads
+        """
+    } else {
+        """
+        trim_galore --paired --fastqc --gzip $reads
+        """
+    }
+}
+
 
 /*
  * STEP 1 - FastQC
@@ -205,8 +232,9 @@ process fastqc {
 
 
 
+
 /*
- * STEP 2 - MultiQC
+ * STEP X - MultiQC
  */
 process multiqc {
     publishDir "${params.outdir}/MultiQC", mode: 'copy'
@@ -214,6 +242,7 @@ process multiqc {
     input:
     file multiqc_config
     file ('fastqc/*') from fastqc_results.collect()
+    file ('trimgalore/*') from trimgalore_results.collect()
     file ('software_versions/*') from software_versions_yaml
 
     output:
