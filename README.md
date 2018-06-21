@@ -5,7 +5,7 @@ This pipeline performs ATACSeq using Nextflow
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.30.0-brightgreen.svg)](https://www.nextflow.io/)
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
-[![Docker](https://img.shields.io/docker/automated/ncbihackathons/atacflow.svg)](https://hub.docker.com/r/ncbihackathons/atacflow)
+[![Docker](https://img.shields.io/docker/automated/stevetsa/atacflow.svg)](https://hub.docker.com/r/stevetsa/atacflow)
 ![Singularity Container available](
 https://img.shields.io/badge/singularity-available-7E4C74.svg)
 
