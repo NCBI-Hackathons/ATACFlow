@@ -176,7 +176,14 @@ process get_software_versions {
     echo $params.version > v_pipeline.txt
     echo $workflow.nextflow.version > v_nextflow.txt
     fastqc --version > v_fastqc.txt
+    trim_galore --version &> v_trim_galore.txt
     multiqc --version > v_multiqc.txt
+    samtools --version &> v_samtools.txt
+    bowtie2 --version &> v_bowtie2.txt #/some/path version 2.3.0 
+    fastq-dump --version &> v_fastq-dump.txt #fastq-dump : 2.8.2 
+    bedtools --version &> v_bedtools.txt #bedtools v2.25.0
+    igvtools &> v_igv-tools.txt #Program: igvtools. IGV Version 2.3.75 
+    macs2 --version &>  v_macs2.txt #macs2 2.1.1.20160309 
     scrape_software_versions.py > software_versions_mqc.yaml
     """
 }
