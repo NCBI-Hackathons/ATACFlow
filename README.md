@@ -1,4 +1,7 @@
 # NCBI-Hackathons/ATACFlow
+
+ ![alt text](https://github.com/NCBI-Hackathons/ATACFlow/docs/ATAC_logo.png) 
+
 This pipeline performs ATACSeq using Nextflow
 
 [![Build Status](https://travis-ci.org/NCBI-Hackathons/ATACFlow.svg?branch=master)](https://travis-ci.org/NCBI-Hackathons/ATACFlow)
