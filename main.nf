@@ -278,6 +278,7 @@ process bowtie2 {
     output:
     set val(name), file("${name}.sam") into mapped_sam_file_ch
     
+    script:
     """
     bowtie2 -p32 -X 2000 -x $bt2_prefix -1 ${trimmed_reads[0]} -2 ${trimmed_reads[1]} -S ${name}.sam
     """
@@ -297,7 +298,9 @@ process samtools {
    
     output:
     set val(name), file("${name}.sorted.bam") into bam_file_ch
-    
+    set val(name), file("${name}.sorted.bam.flagstat") into flagstat_ch   
+
+    script:
     """
     samtools view -q 20 -S -b -o ${name}.bam ${mapped_sam} 
     samtools view -cF 0x100 ${mapped_sam} > ${name}.millionsmapped
@@ -324,30 +327,36 @@ process bedtools {
     output:
     set val(name), file("${name}.sorted.bed") into bed_file_ch
 
+    script:
     """
     genomeCoverageBed -bg -ibam ${bam_file} -g ${chrom_sizes} > ${name}.bed
     bedtools sort -i ${name}.bed > ${name}.sorted.bed
     """
  }
 
+bed_file_ch
+    .combine(flagstat_ch, by:0)
+    .set {bed_and_flagset_ch}
+
 /*
  * STEP X - Normalise Counts
- *
- * process normalise_counts {
- *   tag "$name"
- *   publishDir "${params.outdir}/normalise_counts/", mode: 'copy', pattern: " "
- *
- *   input:
- *   set val(name), file(bam_file) from bed_file_ch
- *
- *   output:
- *   set val(name), file("${name}.sorted.bed") into xzy
- *
- *   """
- *   python readcount_corrected_geneomeBedgraphs.py {sorted.bam.flagstat} ${bed_file}
- *   """
- *}
  */
+
+process normalise_counts {
+    tag "$name"
+ 
+    input:
+    set val(name), file(sorted_bed), file(flagstat) from bed_and_flagset_ch
+
+    output:
+    set val(name), file("${name}.sorted.mp.BedGraph") into normalised_bed_ch
+
+    script:
+    """
+    readcount_corrected_geneomeBedgraphs.py ${flagstat} ${sorted_bed}
+    """
+}
+ 
 
 /*
  *STEP X - IGV Tools
@@ -362,10 +371,11 @@ process igvtools {
     file(chrom_sizes) from chrom_sizes
 
     output:
-    set val(name), file("${name}.tdf") into 
+    set val(name), file("${name}.tdf") into tiled_data_ch 
 
+    script:
     """
-    igvtools toTDF ${normalised_bed} ${name}.tdf ${chrom.sizes}
+    igvtools toTDF ${normalised_bed} ${name}.tdf ${chrom_sizes}
     """
  }
 
