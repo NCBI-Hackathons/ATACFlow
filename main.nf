@@ -27,11 +27,12 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run NCBI-Hackathons/ATACFlow --reads '*_R{1,2}.fastq.gz' -profile docker
+    nextflow run NCBI-Hackathons/ATACFlow --reads '*_{1,2}.fastq.gz' -profile docker
 
     Mandatory arguments:
       --reads                       Path to input data (must be surrounded with quotes)
       --genome                      Name of iGenomes reference
+      --bt2index                    Path to Bowtie2 index
       -profile                      Hardware config to use. docker / aws
 
     Options:
@@ -59,7 +60,6 @@ if (params.help){
 
 // Configurable variables
 params.name = false
-params.fasta = params.genome ? params.genomes[ params.genome ].fasta ?: false : false
 params.multiqc_config = "$baseDir/conf/multiqc_config.yaml"
 params.email = false
 params.plaintext_email = false
@@ -68,26 +68,16 @@ multiqc_config = file(params.multiqc_config)
 output_docs = file("$baseDir/docs/output.md")
 
 // Validate inputs
-if ( params.fasta ){
-    fasta = file(params.fasta)
-    if( !fasta.exists() ) exit 1, "Fasta file not found: ${params.fasta}"
+if ( params.genome ){
+    genome = file(params.genome)
+    if( !genome.exists() ) exit 1, "Fasta genome file not found: ${params.genome}"
 }
 
 
-if ( params.bt2_index_prefix ){
-    bt2_index = file("${params.bt2_index_prefix}.fa")
-    bt2_indices = Channel.fromPath( "${params.bt2_index_prefix}*.bt2" ).toList()
-    if( !bt2_index.exists() ) exit 1, "Reference genome Bowtie 2 not found: ${params.bt2_index_prefix}"
+if ( params.bt2index ){
+    bt2_indices = Channel.fromPath( "${params.bt2index}*.bt2" ).toList()
+    if( !bt2_indices.exists() ) exit 1, "Reference genome Bowtie 2 index not found: ${params.bt2index}"
 }
-
-bt2_indices.view()
-
-//
-// NOTE - THIS IS NOT USED IN THIS PIPELINE, EXAMPLE ONLY
-// If you want to use the above in a process, define the following:
-//   input:
-//   file fasta from fasta
-//
 
 
 // Has the run name been specified by the user?
@@ -137,7 +127,7 @@ summary['Pipeline Name']  = 'NCBI-Hackathons/ATACFlow'
 summary['Pipeline Version'] = params.version
 summary['Run Name']     = custom_runName ?: workflow.runName
 summary['Reads']        = params.reads
-summary['Fasta Ref']    = params.fasta
+summary['Genome Ref']   = params.fasta
 summary['Data Type']    = params.singleEnd ? 'Single-End' : 'Paired-End'
 summary['Max Memory']   = params.max_memory
 summary['Max CPUs']     = params.max_cpus
@@ -189,11 +179,11 @@ process get_software_versions {
     trim_galore --version &> v_trim_galore.txt
     multiqc --version > v_multiqc.txt
     samtools --version &> v_samtools.txt
-    bowtie2 --version &> v_bowtie2.txt #/some/path version 2.3.0 
-    fastq-dump --version &> v_fastq-dump.txt #fastq-dump : 2.8.2 
-    bedtools --version &> v_bedtools.txt #bedtools v2.25.0
-    igvtools &> v_igv-tools.txt #Program: igvtools. IGV Version 2.3.75 
-    macs2 --version &>  v_macs2.txt #macs2 2.1.1.20160309 
+    bowtie2 --version &> v_bowtie2.txt
+    fastq-dump --version &> v_fastq-dump.txt 
+    bedtools --version &> v_bedtools.txt 
+    igvtools &> v_igv-tools.txt 
+    macs2 --version &>  v_macs2.txt 
     scrape_software_versions.py > software_versions_mqc.yaml
     """
 }
@@ -259,9 +249,9 @@ process fastqc {
  *    
  *   output:
  *   file 'genome.index*' into genome_index
-
-    
-       
+ *
+ *   
+ *      
  *   """
  *   bowtie2-build --threads ${task.cpus} ${genome} genome.index
  *   """
