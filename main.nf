@@ -75,7 +75,7 @@ if ( params.genome ){
 
 if ( params.bt2index ){
     bt2_indices = Channel.fromPath( "${params.bt2index}*.bt2" ).toList()
-    if( !bt2_indices.exists() ) exit 1, "Reference genome Bowtie 2 index not found: ${params.bt2index}"
+    // if( !bt2_indices[0].exists() ) exit 1, "Reference genome Bowtie 2 index not found: ${params.bt2index}"
 }
 
 
