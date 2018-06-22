@@ -1,2 +1,0 @@
-mito_dups	886
-total_dups	1364
