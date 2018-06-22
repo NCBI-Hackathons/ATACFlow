@@ -49,7 +49,7 @@ TrimGalore is used for removal of adapter contamination and trimming of low qual
 
 MultiQC reports the percentage of bases removed by TrimGalore in the General Statistics table, along with a line plot showing where reads were trimmed.
 
-Output directory: results/trimgalore
+**Output directory: `results/trimgalore`**
 
 Contains FastQ files with quality and adapter trimmed reads for each sample, along with a log file describing the trimming.
 
