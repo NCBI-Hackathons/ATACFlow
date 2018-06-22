@@ -130,6 +130,7 @@ summary['Pipeline Version'] = params.version
 summary['Run Name']         = custom_runName ?: workflow.runName
 summary['Reads']            = params.reads
 summary['Genome Ref']       = params.genome
+summary['Bowtie2 Index']    = params.bt2index
 summary['Data Type']        = params.singleEnd ? 'Single-End' : 'Paired-End'
 summary['Max Memory']       = params.max_memory
 summary['Max CPUs']         = params.max_cpus
@@ -368,14 +369,14 @@ process igvtools {
 
     input:
     set val(name), file(normalised_bed) from normalised_bed_ch
-    file(chrom_sizes) from chrom_sizes
+    file(genome)
 
     output:
     set val(name), file("${name}.tdf") into tiled_data_ch 
 
     script:
     """
-    igvtools toTDF ${normalised_bed} ${name}.tdf ${chrom_sizes}
+    igvtools toTDF ${normalised_bed} ${name}.tdf ${genome}
     """
  }
 
