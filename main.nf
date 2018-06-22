@@ -254,11 +254,9 @@ process fastqc {
  *    
  *   output:
  *   file 'genome.index*' into genome_index
- *
- *   
  *      
  *   """
- *   bowtie2-build --threads ${task.cpus} ${genome} genome.index
+ *   bowtie2-build ${genome} genome.index
  *   """
  *   }
  */
@@ -281,7 +279,12 @@ process bowtie2 {
     
     script:
     """
-    bowtie2 -p32 -X 2000 -x $bt2_prefix -1 ${trimmed_reads[0]} -2 ${trimmed_reads[1]} -S ${name}.sam
+    bowtie2 -p32 \
+            -X 2000 \
+            -x $bt2_prefix \
+            -1 ${trimmed_reads[0]} \
+            -2 ${trimmed_reads[1]} \
+            -S ${name}.sam
     """
 }
 
@@ -298,7 +301,7 @@ process samtools {
     set val(name), file(mapped_sam) from mapped_sam_file_ch
    
     output:
-    set val(name), file("${name}.sorted.bam") into bam_file_ch
+    set val(name), file("${name}.sorted.bam") into sorted_bam_ch
     set val(name), file("${name}.sorted.bam.flagstat") into flagstat_ch   
 
     script:
@@ -312,6 +315,9 @@ process samtools {
     """
 }
 
+sorted_bam_ch
+   .into {sorted_bams_for_bedtools; sorted_bams_for_macs2}
+
 
 /*
  *STEP X - Create a BedGraph file
@@ -322,7 +328,7 @@ process bedtools {
     publishDir "${params.outdir}/bedtools/", mode: 'copy', pattern: "${name}.sorted.bed"
 
     input:
-    set val(name), file(bam_file) from bam_file_ch
+    set val(name), file(bam_file) from sorted_bams_for_bedtools
     file(chrom_sizes) from chrom_sizes   
 
     output:
@@ -330,8 +336,13 @@ process bedtools {
 
     script:
     """
-    genomeCoverageBed -bg -ibam ${bam_file} -g ${chrom_sizes} > ${name}.bed
-    bedtools sort -i ${name}.bed > ${name}.sorted.bed
+    genomeCoverageBed -bg \
+                      -ibam ${bam_file} \
+                      -g ${chrom_sizes} \
+                      > ${name}.bed
+
+    bedtools sort -i ${name}.bed \
+                   > ${name}.sorted.bed
     """
  }
 
@@ -380,6 +391,34 @@ process igvtools {
     """
  }
 
+
+/*
+ *STEP X - IGV Tools
+ */
+
+process macs2 {
+    tag "$name"
+    publishDir "${params.outdir}/macs2/", mode: 'copy', pattern: "${name}"
+
+    input:
+    set val(name), file(sorted_bam) from sorted_bams_for_macs2
+
+    output:
+    set val(name), file("${name}") into macs2_ch 
+
+    script:
+    """
+    macs2 callpeak -n ${name} \
+                   --nomodel \
+                   --format BAMPE \
+                   -t ${sorted_bam} \
+                   --shift -100 \
+                   --extsize 200 \
+                   -B \
+                   --broad \
+                   --outdir ${name}
+    """
+ }
 
 
 /*
