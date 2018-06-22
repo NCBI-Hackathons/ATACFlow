@@ -38,8 +38,6 @@ def helpMessage() {
     Options:
       --singleEnd                   Specifies that the input is single end reads
 
-    References                      If not specified in the configuration file or you wish to overwrite any of the references.
-      --fasta                       Path to Fasta reference
 
     Other options:
       --outdir                      The output directory where the results will be saved
@@ -72,7 +70,6 @@ if ( params.genome ){
     genome = file(params.genome)
     if( !genome.exists() ) exit 1, "Fasta genome file not found: ${params.genome}"
 }
-
 
 if ( params.bt2index ){
     bt2_index = file("${params.bt2index}.fa").baseName
@@ -128,26 +125,26 @@ log.info """=======================================================
 NCBI-Hackathons/ATACFlow v${params.version}"
 ======================================================="""
 def summary = [:]
-summary['Pipeline Name']  = 'NCBI-Hackathons/ATACFlow'
+summary['Pipeline Name']    = 'NCBI-Hackathons/ATACFlow'
 summary['Pipeline Version'] = params.version
-summary['Run Name']     = custom_runName ?: workflow.runName
-summary['Reads']        = params.reads
-summary['Genome Ref']   = params.fasta
-summary['Data Type']    = params.singleEnd ? 'Single-End' : 'Paired-End'
-summary['Max Memory']   = params.max_memory
-summary['Max CPUs']     = params.max_cpus
-summary['Max Time']     = params.max_time
-summary['Output dir']   = params.outdir
-summary['Working dir']  = workflow.workDir
+summary['Run Name']         = custom_runName ?: workflow.runName
+summary['Reads']            = params.reads
+summary['Genome Ref']       = params.genome
+summary['Data Type']        = params.singleEnd ? 'Single-End' : 'Paired-End'
+summary['Max Memory']       = params.max_memory
+summary['Max CPUs']         = params.max_cpus
+summary['Max Time']         = params.max_time
+summary['Output dir']       = params.outdir
+summary['Working dir']      = workflow.workDir
 summary['Container Engine'] = workflow.containerEngine
 if(workflow.containerEngine) summary['Container'] = workflow.container
-summary['Current home']   = "$HOME"
-summary['Current user']   = "$USER"
-summary['Current path']   = "$PWD"
-summary['Working dir']    = workflow.workDir
-summary['Output dir']     = params.outdir
-summary['Script dir']     = workflow.projectDir
-summary['Config Profile'] = workflow.profile
+summary['Current home']     = "$HOME"
+summary['Current user']     = "$USER"
+summary['Current path']     = "$PWD"
+summary['Working dir']      = workflow.workDir
+summary['Output dir']       = params.outdir
+summary['Script dir']       = workflow.projectDir
+summary['Config Profile']   = workflow.profile
 if(params.email) summary['E-mail Address'] = params.email
 log.info summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
 log.info "========================================="
@@ -195,7 +192,7 @@ process get_software_versions {
 
 
 /*
- * STEP 0 - Trim Galore
+ * STEP 1 - Trim Galore
  */
 
 process trim_galore {
@@ -224,8 +221,9 @@ process trim_galore {
 
 
 /*
- * STEP 1 - FastQC
+ * STEP 2 - FastQC
  */
+
 process fastqc {
     tag "$name"
     publishDir "${params.outdir}/fastqc", mode: 'copy',
@@ -245,7 +243,7 @@ process fastqc {
 
 
 /*
- * STEP 2 - Build Bowtie2 Index
+ * STEP 3 (Optional) - Build Bowtie2 Index
  *
  * process buildIndex {
  *   tag "$genome_file.baseName"
@@ -266,70 +264,111 @@ process fastqc {
 
 
 /*
- * STEP X - Map reads to reference genome
+ * STEP 4 - Map reads to reference genome
  */
 process bowtie2 {
-  tag "$name"
-  publishDir "${params.outdir}/bowtie2/", mode: 'copy', pattern: "${name}.sam"
+    tag "$name"
+    publishDir "${params.outdir}/bowtie2/", mode: 'copy', pattern: "${name}.sam"
   
-  input:
-  val(bt2_prefix) from bt2_index
-  file(indices) from bt2_indices
-  set val(name), file(trimmed_reads) from trimmed_reads_ch
+    input:
+    val(bt2_prefix) from bt2_index
+    file(indices) from bt2_indices
+    set val(name), file(trimmed_reads) from trimmed_reads_ch
    
-  output:
-  set val(name), file("${name}.sam") into mapped_sam_file_ch
+    output:
+    set val(name), file("${name}.sam") into mapped_sam_file_ch
     
-  """
-  bowtie2 -p32 -X 2000 -x $bt2_prefix -1 ${trimmed_reads[0]} -2 ${trimmed_reads[1]} -S ${name}.sam
-  """
-  }
+    """
+    bowtie2 -p32 -X 2000 -x $bt2_prefix -1 ${trimmed_reads[0]} -2 ${trimmed_reads[1]} -S ${name}.sam
+    """
+}
 
 
 /*
  * STEP X - Convert to BAM format and sort
  */
+
 process samtools {
-  tag "$name"
-  publishDir "${params.outdir}/samtools/", mode: 'copy', pattern: "${name}.sorted.bam"
+    tag "$name"
+    publishDir "${params.outdir}/samtools/", mode: 'copy', pattern: "${name}.sorted.bam"
   
-  input:
-  set val(name), file(mapped_sam) from mapped_sam_file_ch
+    input:
+    set val(name), file(mapped_sam) from mapped_sam_file_ch
    
-  output:
-  set val(name), file("${name}.sorted.bam") into bam_file_ch
+    output:
+    set val(name), file("${name}.sorted.bam") into bam_file_ch
     
-  """
-  samtools view -q 20 -S -b -o ${name}.bam ${mapped_sam} 
-  samtools view -cF 0x100 ${mapped_sam} > ${name}.millionsmapped
-  samtools sort -m500G -o ${name}.sorted.bam ${name}.bam
-  samtools flagstat ${name}.bam > ${name}.bam.flagstat 
-  samtools index ${name}.sorted.bam
-  samtools flagstat ${name}.sorted.bam > ${name}.sorted.bam.flagstat
-  """
-  }
+    """
+    samtools view -q 20 -S -b -o ${name}.bam ${mapped_sam} 
+    samtools view -cF 0x100 ${mapped_sam} > ${name}.millionsmapped
+    samtools sort -m500G -o ${name}.sorted.bam ${name}.bam
+    samtools flagstat ${name}.bam > ${name}.bam.flagstat 
+    samtools index ${name}.sorted.bam
+    samtools flagstat ${name}.sorted.bam > ${name}.sorted.bam.flagstat
+    """
+}
 
 
 /*
  *STEP X - Create a BedGraph file
  */
+
 process bedtools {
-  tag "$name"
-  publishDir "${params.outdir}/bedtools/", mode: 'copy', pattern: "${name}.sorted.bed"
+    tag "$name"
+    publishDir "${params.outdir}/bedtools/", mode: 'copy', pattern: "${name}.sorted.bed"
 
-  input:
-  set val(name), file(bam_file) from bam_file_ch
-  file(chrom_sizes) from chrom_sizes   
+    input:
+    set val(name), file(bam_file) from bam_file_ch
+    file(chrom_sizes) from chrom_sizes   
 
-  output:
-  set val(name), file("${name}.sorted.bed") into bed_file_ch
+    output:
+    set val(name), file("${name}.sorted.bed") into bed_file_ch
 
-    
-  """
-  genomeCoverageBed -bg -ibam ${bam_file} -g ${chrom_sizes} > ${name}.bed
-  bedtools sort -i ${name}.bed > ${name}.sorted.bed
-  """
-  }
+    """
+    genomeCoverageBed -bg -ibam ${bam_file} -g ${chrom_sizes} > ${name}.bed
+    bedtools sort -i ${name}.bed > ${name}.sorted.bed
+    """
+ }
+
+/*
+ * STEP X - Normalise Counts
+ *
+ * process normalise_counts {
+ *   tag "$name"
+ *   publishDir "${params.outdir}/normalise_counts/", mode: 'copy', pattern: " "
+ *
+ *   input:
+ *   set val(name), file(bam_file) from bed_file_ch
+ *
+ *   output:
+ *   set val(name), file("${name}.sorted.bed") into xzy
+ *
+ *   """
+ *   python readcount_corrected_geneomeBedgraphs.py {sorted.bam.flagstat} ${bed_file}
+ *   """
+ *}
+ */
+
+/*
+ *STEP X - IGV Tools
+ */
+
+process igvtools {
+    tag "$name"
+    publishDir "${params.outdir}/igv_tools/", mode: 'copy', pattern: "${name}.tdf"
+
+    input:
+    set val(name), file(normalised_bed) from normalised_bed_ch
+    file(chrom_sizes) from chrom_sizes
+
+    output:
+    set val(name), file("${name}.tdf") into 
+
+    """
+    igvtools toTDF ${normalised_bed} ${name}.tdf ${chrom.sizes}
+    """
+ }
+
 
 
 /*
