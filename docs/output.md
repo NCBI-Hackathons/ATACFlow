@@ -34,5 +34,35 @@ For further reading and documentation see the [FastQC help](http://www.bioinform
 
 For more information about how to use MultiQC reports, see http://multiqc.info
 
+
+## TrimGalore
+
+TrimGalore is used for removal of adapter contamination and trimming of low quality regions. TrimGalore uses Cutadapt for adapter trimming and runs FastQC after it finishes.
+
+MultiQC reports the percentage of bases removed by TrimGalore in the General Statistics table, along with a line plot showing where reads were trimmed.
+
+Output directory: results/trimgalore
+
+Contains FastQ files with quality and adapter trimmed reads for each sample, along with a log file describing the trimming.
+
+    sample_val_1.fq.gz, sample_val_2.fq.gz
+        Trimmed FastQ data, reads 1 and 2.
+    sample_val_1.fastq.gz_trimming_report.txt
+        Trimming report (describes which parameters that were used)
+    sample_val_1_fastqc.html
+    sample_val_1_fastqc.zip
+        FastQC report for trimmed reads
+
+Single-end data will have slightly different file names and only one FastQ file per sample:
+
+    sample_trimmed.fq.gz
+        Trimmed FastQ data
+    sample.fastq.gz_trimming_report.txt
+        Trimming report (describes which parameters that were used)
+    sample_trimmed_fastqc.html
+    sample_trimmed_fastqc.zip
+        FastQC report for trimmed reads
+
+
 ## bowtie2
 [bowtie2](http://bowtie-bio.sf.net/bowtie2)
