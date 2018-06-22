@@ -1,5 +1,8 @@
 # NCBI-Hackathons/ATACFlow
-This pipeline performs ATACSeq using Nextflow
+
+![](https://raw.githubusercontent.com/NCBI-Hackathons/ATACFlow/master/docs/ATAC_logo.png) 
+
+This pipeline performs ATAC Seq using Nextflow
 
 [![Build Status](https://travis-ci.org/NCBI-Hackathons/ATACFlow.svg?branch=master)](https://travis-ci.org/NCBI-Hackathons/ATACFlow)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.30.0-brightgreen.svg)](https://www.nextflow.io/)
@@ -10,7 +13,7 @@ This pipeline performs ATACSeq using Nextflow
 https://img.shields.io/badge/singularity-available-7E4C74.svg)
 
 ### Introduction
-NCBI-Hackathons/ATACFlow: This pipeline performs ATAC C Seq using Nextflow
+NCBI-Hackathons/ATACFlow: This pipeline performs ATAC Seq using Nextflow
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker / singularity containers making installation trivial and results highly reproducible.
 
