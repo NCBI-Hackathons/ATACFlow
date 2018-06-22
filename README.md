@@ -28,6 +28,7 @@ The NCBI-Hackathons/ATACFlow pipeline comes with documentation about the pipelin
 3. [Running the pipeline](docs/usage.md)
 4. [Pipeline Components](docs/output.md)
 5. [Troubleshooting](docs/troubleshooting.md)
+6. [Operating with Jupyter Notebook](docs/jupyter.md)
 
 ### Credits
 This pipeline was written by ATACFlow Team @ [RMGCH-18](https://hackathon.colorado.edu/rmgh-2018-hackathon/) ([NCBI-Hackathons](https://github.com/NCBI-Hackathons)).
