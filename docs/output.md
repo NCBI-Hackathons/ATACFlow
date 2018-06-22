@@ -37,11 +37,11 @@ For more information about how to use MultiQC reports, see http://multiqc.info
 
 ## TrimGalore
 
-TrimGalore is used for removal of adapter contamination and trimming of low quality regions. TrimGalore uses Cutadapt for adapter trimming and runs FastQC after it finishes.
+[TrimGalore](https://github.com/FelixKrueger/TrimGalore) is used for removal of adapter contamination and trimming of low quality regions. TrimGalore uses Cutadapt for adapter trimming and runs FastQC after it finishes.
 
 MultiQC reports the percentage of bases removed by TrimGalore in the General Statistics table, along with a line plot showing where reads were trimmed.
 
-Output directory: results/trimgalore
+**Output directory: `results/trimgalore` **
 
 Contains FastQ files with quality and adapter trimmed reads for each sample, along with a log file describing the trimming.
 
@@ -65,4 +65,13 @@ Single-end data will have slightly different file names and only one FastQ file 
 
 
 ## bowtie2
-[bowtie2](http://bowtie-bio.sf.net/bowtie2)
+
+[bowtie2](http://bowtie-bio.sf.net/bowtie2) is used for mapping adapter trimmed reads against the reference genome.
+
+** Output directory: `results/bowtie2` **
+
+## SAMtools
+
+SAMtools is used for sorting and indexing the output BAM files from Bowtie. In addition, the numbers of features are counted with the idxstats option.
+
+** Output directory: `results/samtools` **
