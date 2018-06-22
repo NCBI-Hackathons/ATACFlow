@@ -30,7 +30,7 @@ The NCBI-Hackathons/ATACFlow pipeline comes with documentation about the pipelin
 5. [Troubleshooting](docs/troubleshooting.md)
 
 ### Credits
-This pipeline was written by ATACFlow Team @ RMGCH-18 ([NCBI-Hackathons](https://github.com/NCBI-Hackathons)).
+This pipeline was written by ATACFlow Team @ [RMGCH-18](https://hackathon.colorado.edu/rmgh-2018-hackathon/) ([NCBI-Hackathons](https://github.com/NCBI-Hackathons)).
 
 * Ignacio Tripodi (ignacio.tripodi at colorado.edu): Computer Scientist, closet wet-lab enthusiast
 * Steve Tsang (hsinyi.tsang at nih.gov): Computational Biologist
