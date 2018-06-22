@@ -10,7 +10,7 @@ NXF_OPTS='-Xms1g -Xmx4g'
 ```
 
 ## Running the pipeline
-The typical command for running the pipeline is as follows:
+The typical command for running the pipeline is as follows (TL;DR section):
 ```bash
 nextflow run NCBI-Hackathons/ATACFlow --reads '*_R{1,2}.fastq.gz' -profile docker
 ```

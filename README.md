@@ -23,14 +23,15 @@ The NCBI-Hackathons/ATACFlow pipeline comes with documentation about the pipelin
 
 1. [Installation](docs/installation.md)
 2. Pipeline configuration
-    * [Local installation](docs/configuration/local.md)
-    * [Adding your own system](docs/configuration/adding_your_own.md)
+    * [Docker installation](docs/configuration/local.md)
+    * [Adding your HPC](docs/configuration/adding_your_own.md)
 3. [Running the pipeline](docs/usage.md)
-4. [Output and how to interpret the results](docs/output.md)
+4. [Pipeline Components](docs/output.md)
 5. [Troubleshooting](docs/troubleshooting.md)
+6. [Operating with Jupyter Notebook](docs/jupyter.md)
 
 ### Credits
-This pipeline was written by ATACFlow Team @ RMGCH-18 ([NCBI-Hackathons](https://github.com/NCBI-Hackathons)).
+This pipeline was written by ATACFlow Team @ [RMGCH-18](https://hackathon.colorado.edu/rmgh-2018-hackathon/) ([NCBI-Hackathons](https://github.com/NCBI-Hackathons)).
 
 * Ignacio Tripodi (ignacio.tripodi at colorado.edu): Computer Scientist, closet wet-lab enthusiast
 * Steve Tsang (hsinyi.tsang at nih.gov): Computational Biologist
