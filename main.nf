@@ -75,10 +75,15 @@ if ( params.genome ){
 
 
 if ( params.bt2index ){
+    bt2_index = file("${params.bt2index}.fa").baseName
     bt2_indices = Channel.fromPath( "${params.bt2index}*.bt2" ).toList()
     // if( !bt2_indices[0].exists() ) exit 1, "Reference genome Bowtie 2 index not found: ${params.bt2index}"
 }
 
+if ( params.chrom_sizes ){
+    chrom_sizes = file(params.chrom_sizes)
+    if( !chrom_sizes.exists() ) exit 1, "Genome chrom sizes file not found: ${params.chrom_sizes}"
+}
 
 // Has the run name been specified by the user?
 //  this has the bonus effect of catching both -name and --name
@@ -195,6 +200,7 @@ process get_software_versions {
 
 process trim_galore {
     tag "$name"
+    publishDir "${params.outdir}/trim_galore/", mode: 'copy', pattern: '*fq.gz'
 
     input:
     set val(name), file(reads) from read_files_trimming
@@ -262,18 +268,20 @@ process fastqc {
 /*
  * STEP X - Map reads to reference genome
  */
-process mapReads {
+process bowtie2 {
   tag "$name"
+  publishDir "${params.outdir}/bowtie2/", mode: 'copy', pattern: "${name}.sam"
   
   input:
+  val(bt2_prefix) from bt2_index
+  file(indices) from bt2_indices
   set val(name), file(trimmed_reads) from trimmed_reads_ch
    
   output:
-  file '*.sam' into mapped_sam_file_ch
-
+  set val(name), file("${name}.sam") into mapped_sam_file_ch
     
   """
-  bowtie2 -p32 -X 2000 -x params.bt2_index_prefix -1 ${trimmed_read[0]} -2 ${trimmed_read[1]} -S ${name}.sam 2> ${name}.stderr
+  bowtie2 -p32 -X 2000 -x $bt2_prefix -1 ${trimmed_reads[0]} -2 ${trimmed_reads[1]} -S ${name}.sam
   """
   }
 
@@ -281,23 +289,23 @@ process mapReads {
 /*
  * STEP X - Convert to BAM format and sort
  */
-process convertToBAM {
+process samtools {
   tag "$name"
+  publishDir "${params.outdir}/samtools/", mode: 'copy', pattern: "${name}.sorted.bam"
   
   input:
-  set val(name), file mapped_sam from mapped_sam_file_ch
+  set val(name), file(mapped_sam) from mapped_sam_file_ch
    
   output:
-  file '*.sorted.bam' into bam_file_ch
-
+  set val(name), file("${name}.sorted.bam") into bam_file_ch
     
   """
-  samtools view -q 20 -S -b -o ${name}.bam mapped_sam 2>${name}.bam.err
-  samtools view -cF 0x100 mapped_sam > ${name}.millionsmapped
+  samtools view -q 20 -S -b -o ${name}.bam ${mapped_sam} 
+  samtools view -cF 0x100 ${mapped_sam} > ${name}.millionsmapped
   samtools sort -m500G -o ${name}.sorted.bam ${name}.bam
-  samtools flagstat ${name}.bam > ${name}.bam.flagstat 2>${name}.bam.flagstat.err
+  samtools flagstat ${name}.bam > ${name}.bam.flagstat 
   samtools index ${name}.sorted.bam
-  samtools flagstat ${name}.sorted.bam > ${name}.sorted.bam.flagstat 2>${name}.sorted.bam.flagstat.err
+  samtools flagstat ${name}.sorted.bam > ${name}.sorted.bam.flagstat
   """
   }
 
@@ -305,18 +313,20 @@ process convertToBAM {
 /*
  *STEP X - Create a BedGraph file
  */
-process convertToBED {
+process bedtools {
   tag "$name"
-  
+  publishDir "${params.outdir}/bedtools/", mode: 'copy', pattern: "${name}.sorted.bed"
+
   input:
-  set val(name), file bam_file from bam_file_ch
-   
+  set val(name), file(bam_file) from bam_file_ch
+  file(chrom_sizes) from chrom_sizes   
+
   output:
-  file '*.sorted.bed' into bed_file_ch
+  set val(name), file("${name}.sorted.bed") into bed_file_ch
 
     
   """
-  genomeCoverageBed -bg -ibam bam_file -g params.genome_chrom_sizes > ${name}.bed
+  genomeCoverageBed -bg -ibam ${bam_file} -g ${chrom_sizes} > ${name}.bed
   bedtools sort -i ${name}.bed > ${name}.sorted.bed
   """
   }
