@@ -15,8 +15,8 @@ and processes data using the following steps:
 * [Bowtie2](#bowtie2) --version 2.3.0 - mapping reads to reference genome
 * [Samtools](#samtools) --version 1.3.1 - manipulating alignments in the SAM files
 * [Bedtools](#bedtools) --version 2.25.0 - enables genome arithmetic
-* [Igvtools](#igvtools) --version 2.3.75 - for preprocessing data
-* [Macs2](#macs2) --version 2.1.1.20160309 - finding peaks
+* [Igvtools](#igvtools) --version 2.3.75 - preprocessing the data and visualization 
+* [Macs2](#macs2) --version 2.1.1.20160309 - calling peaks
 
 ## FastQC
 [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your reads. It provides information about the quality score distribution across your reads, the per base sequence content (%T/A/G/C). You get information about adapter contamination and other overrepresented sequences.
@@ -85,9 +85,10 @@ Single-end data will have slightly different file names and only one FastQ file 
 
 ## bedtools
 
-[bedtools](https://github.com/arq5x/bedtools2)
+[bedtools](https://github.com/arq5x/bedtools2) is used to generate BedGraph copies for the downstream analysis.
 
 **Output directroy: `results/bedtools`**
+
 
 ## Macs2
 
@@ -96,5 +97,8 @@ As input, MACS2 takes the alignment files produced in the previous steps. Howeve
 
 **Output directory: `result/macs2`** 
 
+## Igvtools
+
+[igvtools](https://software.broadinstitute.org/software/igv/igvtools) toTDF converts a sorted data input file to a binary tiled data (.tdf) file. 
 
 
