@@ -26,7 +26,7 @@ The NCBI-Hackathons/ATACFlow pipeline comes with documentation about the pipelin
     * [Docker installation](docs/configuration/local.md)
     * [Adding your HPC](docs/configuration/adding_your_own.md)
 3. [Running the pipeline](docs/usage.md)
-4. [Output and how to interpret the results](docs/output.md)
+4. [Pipeline Components](docs/output.md)
 5. [Troubleshooting](docs/troubleshooting.md)
 
 ### Credits
