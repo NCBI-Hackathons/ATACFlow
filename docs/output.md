@@ -8,11 +8,11 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/)
 and processes data using the following steps:
 
 * [Sra-tools](#sra-tools) --version 2.8.2 - convert sra files to fastq files
+* [Trim_Galore](#trim_galore) --version 0.4.4 -trimming adaptors and quality control
 * [FastQC](#fastqc) --version v0.11.7 - read quality control
 * [MultiQC](#multiqc) --version 1.5 report, describing results of the whole pipeline
-* [Trim_Galore](#trim_galore) --version 0.4.4 -trimming adaptors and quality control
-* [Bowtie2](#bowtie2) --version 2.3.0 -mapping reads to reference genome
 * [Bowtie2-build](#bowtie2-build) --version 2.3.0 -building reference genome
+* [Bowtie2](#bowtie2) --version 2.3.0 -mapping reads to reference genome
 * [Samtools](#samtools) --version 1.3.1 - manipulating alignments in the SAM files
 * [Bedtools](#bedtools) --version 2.25.0 - enables genome arithmetic
 * [Igvtools](#igvtools) --version 2.3.75 - for preprocessing data
