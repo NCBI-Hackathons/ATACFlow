@@ -6,16 +6,23 @@ This document describes the output produced by the pipeline. Most of the plots a
 ## Pipeline overview
 The pipeline is built using [Nextflow](https://www.nextflow.io/)
 and processes data using the following steps:
-* [Sra-tools](#sra-tools) --version 2.8.2 - convert sra files to fastq files
-* [FastQC](#fastqc) --version v0.11.7 - read quality control
-* [MultiQC](#multiqc) --version 1.5 report, describing results of the whole pipeline
-* [Trim_Galore](#trim_galore) --version 0.4.4 -trimming adaptors and quality control
-* [Bowtie2](#bowtie2) --version 2.3.0 -mapping reads to reference genome
-* [Bowtie2-build](#bowtie2-build) --version 2.3.0 -building reference genome
-* [Samtools](#samtools) --version 1.3.1 - manipulating alignments in the SAM files
-* [Bedtools](#bedtools) --version 2.25.0 - enables genome arithmetic
-* [Igvtools](#igvtools) --version 2.3.75 - for preprocessing data
-* [Macs2](#macs2) --version 2.1.1.20160309 - finding peaks
+
+* [FastQC](#fastqc) - read quality control, version 0.11.7
+* [MultiQC](#multiqc) - aggregate report, describing results of the whole pipeline, version 1.5
+* [TrimGalore](#TrimGalore) -  removal of adapter contamination and trimming of low quality regions, version 0.36
+* [bowtie2](#bowtie2) -  mapping adapter trimmed reads against the reference genome, version 2.3.0
+* [samtools](#samtools) - sorting and indexing the output BAM files from Bowtie2, version 1.3.1
+* [macs2](#macs2) - ,version 2.1.1.20160309
+* []
+  - sra-tools=2.8.2
+
+  - bowtie2=2.3.0
+  - samtools=1.3.1
+  - bedtools=2.25.0
+  - igvtools=2.3.75
+  - macs2=2.1.1.20160309
+- openjdk
+
 ## FastQC
 [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your reads. It provides information about the quality score distribution across your reads, the per base sequence content (%T/A/G/C). You get information about adapter contamination and other overrepresented sequences.
 
@@ -71,4 +78,14 @@ Single-end data will have slightly different file names and only one FastQ file 
 
 
 ## bowtie2
-[bowtie2](http://bowtie-bio.sf.net/bowtie2)
+[bowtie2](http://bowtie-bio.sf.net/bowtie2) is used for mapping adapter trimmed reads against the reference genome.
+
+** Output directory: results/bowtie2 **
+
+## SAMtools
+
+[SAMtools](https://github.com/samtools/samtools) is used for sorting and indexing the output BAM files from Bowtie2. In addition, the numbers of features are counted with the idxstats option.
+
+** Output directory: results/samtools **
+
+## 
