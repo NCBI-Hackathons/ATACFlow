@@ -99,7 +99,7 @@ Single-end data will have slightly different file names and only one FastQ file 
 
 **Output directroy: `results/bedtools`**
  
-* 'sample.sorted.bed'
+* `sample.sorted.bed`
   * BedGraph copies (easier for data analysis)
 
 
