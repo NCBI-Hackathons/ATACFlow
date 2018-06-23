@@ -1,7 +1,7 @@
 # NCBI-Hackathons/ATACFlow Jupyter Notebook
 
 ## Using Jupyter Notebooks
-A practical way to execute this pipeline and perform downstream analysis is to use a Jupyter Notebook to connect to the instantiated container, thus leaving the heavy computations to the backend and the operation of the workflow to a notebook. We need to make use of port forwarding to accomplish this:
+A practical way to execute this pipeline and perform downstream analysis is to use a Jupyter Notebook to connect to the instantiated container, thus leaving the heavy computations to the backend and the operation of the workflow to a notebook. We need to make use of port forwarding to accomplish this. In this example, we use  the 8888 port for everything, but it can also be executed with any other available port:
 
 ```bash
 ssh -L 8888:0.0.0.0:8888 $USERNAME@AWS_public_ip_address
