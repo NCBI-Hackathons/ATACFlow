@@ -239,7 +239,6 @@ process trim_galore {
     output:
     set val(name), file("*.gz") into trimmed_reads_ch
     file "*trimming_report.txt" into trimgalore_results
-    file "*_fastqc.{zip,html}" into trimgalore_fastqc_reports
 
     script:
     if (params.singleEnd) {
