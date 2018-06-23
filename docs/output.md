@@ -161,6 +161,7 @@ As input, MACS2 takes the alignment files produced in the previous steps. Howeve
 **Output directory: `results/md_scores`** 
 
 * `sample_Treatment_md_scores.txt`
+  * MD-scores of the differential analysis on ATAC-seq datasets
 
 ![](https://biof-git.colorado.edu/dowelllab/DAStk/raw/master/doc_files/sample_MA_plot.png)
 ![](https://biof-git.colorado.edu/dowelllab/DAStk/raw/master/doc_files/sample_barcode_plot.png)
