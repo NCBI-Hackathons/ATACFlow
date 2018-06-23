@@ -81,6 +81,10 @@ if ( params.chrom_sizes ){
     if( !chrom_sizes.exists() ) exit 1, "Genome chrom sizes file not found: ${params.chrom_sizes}"
 }
 
+if ( params.tf_motif_sites ){
+    motifs_dir = file("${params.tf_motif_sites}")
+}
+
 if ( params.sras ){
   sra_ids_list = params.sras.tokenize(",")
 }
@@ -105,6 +109,8 @@ process sra_mapping {
     script:
     """
     fastq-dump --split-3 ${sra_id}
+    # TEST THIS LATER, SHOULD BE FASTER AND DEFAULTS TO --split-3
+    #fasterq-dump ${sra_id}
     """
 } 
 
@@ -420,7 +426,7 @@ process igvtools {
 
 
 /*
- *STEP X - IGV Tools
+ *STEP X - Peak calling
  */
 
 process macs2 {
@@ -444,6 +450,32 @@ process macs2 {
                    -B \
                    --broad \
                    --outdir ${name}
+    """
+ }
+
+
+/*
+ *STEP X - Calculate MD-scores
+ */
+
+process process_atac {
+    tag "$name"
+    maxForks 12
+    publishDir "${params.outdir}/md_scores/", mode: 'copy', pattern: "${name}"
+
+    input:
+    val(tf_motifs_dir) from motifs_dir
+    set val(name), file(peaks_file) from macs2_ch 
+
+    output:
+    set val(name), file("${name}") into dastk_ch 
+
+    script:
+    """
+    process_atac --prefix '${name}_CONDITION' \
+		 --threads 12 \
+		 --atac-peaks ${peaks_file} \
+		 --motif-path ${tf_motifs_dir}
     """
  }
 
