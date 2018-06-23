@@ -158,3 +158,9 @@ As input, MACS2 takes the alignment files produced in the previous steps. Howeve
 
 [DAStk](https://biof-git.colorado.edu/dowelllab/DAStk) is a differential ATAC-seq toolkit, can be used to identify changes in TF activity across differential ATAC-seq datasets.
 
+**Output directory: `results/md_scores`** 
+
+* `sample_Treatment_md_scores.txt`
+
+![](https://biof-git.colorado.edu/dowelllab/DAStk/raw/master/doc_files/sample_MA_plot.png)
+![](https://biof-git.colorado.edu/dowelllab/DAStk/raw/master/doc_files/sample_barcode_plot.png)
