@@ -4,7 +4,9 @@ This pipeline performs ATAC Seq using Nextflow
 This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
 
 ## Pipeline overview
-![]https://raw.githubusercontent.com/NCBI-Hackathons/ATACFlow/master/docs/Pipelie%20Diagram.png
+
+![](https://raw.githubusercontent.com/NCBI-Hackathons/ATACFlow/master/docs/Pipelie%20Diagram.png)
+
 The pipeline is built using [Nextflow](https://www.nextflow.io/)
 and processes data using the following steps:
 
