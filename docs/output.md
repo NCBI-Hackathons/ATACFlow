@@ -106,4 +106,6 @@ As input, MACS2 takes the alignment files produced in the previous steps. Howeve
 
 ### Downstream analysis
 
+## DAStk
 
+[DAstk](https://biof-git.colorado.edu/dowelllab/DAStk) is a differential ATAC-seq toolkit, can be used to identify changes in TF activity across differential ATAC-seq datasets.
