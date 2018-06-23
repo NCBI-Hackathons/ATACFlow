@@ -14,5 +14,6 @@ Bootstrap:docker
     environment.yml /
 
 %post
+    pip install dastk
     /opt/conda/bin/conda env create -f /environment.yml
     /opt/conda/bin/conda clean -a
