@@ -82,12 +82,12 @@ if ( params.chrom_sizes ){
 }
 
 if ( params.tf_motif_sites ){
-    motifs_dir = file("${params.tf_motif_sites}")
+    tf_motifs_dir = file("${params.tf_motif_sites}")
 }
 
 if ( params.sras ){
   sra_ids_list = params.sras.tokenize(",")
-}
+} else { Channel.empty().set {sra_ids_list } }
 
 // Has the run name been specified by the user?
 //  this has the bonus effect of catching both -name and --name
@@ -456,28 +456,28 @@ process macs2 {
 
 /*
  *STEP X - Calculate MD-scores
- */
-
-process process_atac {
-    tag "$name"
-    maxForks 12
-    publishDir "${params.outdir}/md_scores/", mode: 'copy', pattern: "${name}"
-
-    input:
-    val(tf_motifs_dir) from motifs_dir
-    set val(name), file(peaks_file) from macs2_ch 
-
-    output:
-    set val(name), file("${name}") into dastk_ch 
-
-    script:
-    """
-    process_atac --prefix '${name}_CONDITION' \
-		 --threads 12 \
-		 --atac-peaks ${peaks_file} \
-		 --motif-path ${tf_motifs_dir}
-    """
- }
+ *
+ *
+*process process_atac {
+*    tag "$name"
+*    publishDir "${params.outdir}/md_scores/", mode: 'copy', pattern: "${name}"
+*
+*    input:
+*    file(tf_motifs_dir)
+*    set val(name), file(peaks_file) from macs2_ch 
+*
+*    output:
+*    set val(name), file("${name}") into dastk_ch 
+*
+*    script:
+*    """
+*    process_atac --prefix '${name}_CONDITION' \
+*		 --threads ${task.cpus}
+*		 --atac-peaks ${peaks_file} \
+*		 --motif-path ${tf_motifs_dir}
+*    """
+* }
+*/
 
 
 /*
