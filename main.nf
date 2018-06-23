@@ -27,17 +27,17 @@ def helpMessage() {
 
     The typical command for running the pipeline is as follows:
 
-    nextflow run NCBI-Hackathons/ATACFlow --reads '*_{1,2}.fastq.gz' -profile docker
+    nextflow run NCBI-Hackathons/ATACFlow -profile singularity,test
 
     Mandatory arguments:
       --reads                       Path to input data (must be surrounded with quotes)
+      --sras                        Comma seperated list of SRAs ids 
       --genome                      Name of iGenomes reference
       --bt2index                    Path to Bowtie2 index
       -profile                      Hardware config to use. docker / aws
 
     Options:
       --singleEnd                   Specifies that the input is single end reads
-
 
     Other options:
       --outdir                      The output directory where the results will be saved
@@ -61,7 +61,6 @@ params.name = false
 params.multiqc_config = "$baseDir/conf/multiqc_config.yaml"
 params.email = false
 params.plaintext_email = false
-
 multiqc_config = file(params.multiqc_config)
 output_docs = file("$baseDir/docs/output.md")
 
@@ -82,6 +81,10 @@ if ( params.chrom_sizes ){
     if( !chrom_sizes.exists() ) exit 1, "Genome chrom sizes file not found: ${params.chrom_sizes}"
 }
 
+if ( params.sras ){
+  sra_ids_list = params.sras.tokenize(",")
+}
+
 // Has the run name been specified by the user?
 //  this has the bonus effect of catching both -name and --name
 custom_runName = params.name
@@ -89,10 +92,30 @@ if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
   custom_runName = workflow.runName
 }
 
+process sra_mapping {
+    publishDir "${params.outdir}/sra/", mode: 'copy'
+    tag "reads: $sra_id"
+
+    input:
+    val (sra_id) from sra_ids_list
+
+    output:
+    set val(sra_id), file("*.fastq") into sra_read_files
+
+    script:
+    """
+    fastq-dump --split-3 ${sra_id}
+    """
+} 
+
+
+
+
 /*
  * Create a channel for input read files
  */
- if(params.readPaths){
+
+if(params.readPaths ){
      if(params.singleEnd){
          Channel
              .from(params.readPaths)
@@ -106,7 +129,12 @@ if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
              .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
              .into { read_files_fastqc; read_files_trimming }
      }
- } else {
+ } 
+else if (params.sras) {
+        sra_read_files.into { read_files_fastqc; read_files_trimming }
+} 
+
+else {
      Channel
          .fromFilePairs( params.reads, size: params.singleEnd ? 1 : 2 )
          .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --singleEnd on the command line." }
@@ -149,7 +177,6 @@ summary['Config Profile']   = workflow.profile
 if(params.email) summary['E-mail Address'] = params.email
 log.info summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
 log.info "========================================="
-
 
 // Check that Nextflow version is up to date enough
 // try / throw / catch works for NF versions < 0.25 when this was implemented
