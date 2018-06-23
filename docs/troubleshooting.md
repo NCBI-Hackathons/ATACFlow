@@ -17,6 +17,18 @@ ERROR ~ Cannot find any reads matching: *{1,2}.fastq.gz
 
 Note that if your sample name is "messy" then you have to be very particular with your glob specification. A file name like `L1-1-D-2h_S1_L002_R1_001.fastq.gz` can be difficult enough for a human to read. Specifying `*{1,2}*.gz` wont work give you what you want Whilst `*{R1,R2}*.gz` will.
 
+## Running the lastest version
+
+When running the pipeline, you may see a warning message:
+`NOTE: Your local project version looks outdated - a different revision is available in the remote repository [XXXXXX]`
+You can delete the old workflow by:
+
+```
+rm -rf ~/.nextflow/assets/NCBI-Hackathons/ATACFlow
+```
+And run it again.
+
+
 
 ## Data organization
 The pipeline can't take a list of multiple input files - it takes a glob expression. If your input files are scattered in different paths then we recommend that you generate a directory with symlinked files. If running in paired end mode please make sure that your files are sensibly named so that they can be properly paired. See the previous point.
