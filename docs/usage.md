@@ -14,12 +14,13 @@ The typical command for running the pipeline is as follows (TL;DR section):
 ```bash
 nextflow run NCBI-Hackathons/ATACFlow --reads '*_R{1,2}.fastq.gz' -profile docker
 ```
+
+This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
+
 The test run command
 ```bash
 nextflow run NCBI-Hackathons/ATACFlow -profile singularity,test
 ```
-
-This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
 
 Note that the pipeline will create the following files in your working directory:
 
