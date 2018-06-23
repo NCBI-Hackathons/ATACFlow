@@ -237,18 +237,18 @@ process trim_galore {
     set val(name), file(reads) from read_files_trimming
 
     output:
-    set val(name), file("*fq.gz") into trimmed_reads_ch
+    set val(name), file("*.gz") into trimmed_reads_ch
     file "*trimming_report.txt" into trimgalore_results
     file "*_fastqc.{zip,html}" into trimgalore_fastqc_reports
 
     script:
     if (params.singleEnd) {
         """
-        trim_galore --fastqc --gzip $reads
+        trim_galore --gzip $reads
         """
     } else {
         """
-        trim_galore --paired --fastqc --gzip $reads
+        trim_galore --fastqc --gzip $reads
         """
     }
 }
