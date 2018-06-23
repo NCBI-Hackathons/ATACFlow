@@ -162,6 +162,10 @@ As input, MACS2 takes the alignment files produced in the previous steps. Howeve
 
 * `sample_Treatment_md_scores.txt`
   * MD-scores of the differential analysis on ATAC-seq datasets
+* `MA plot` that labels the most significant TF activity changes, at a p-value cutoff of 1e-7. Note that the condition names (DMSO and Treatment) were the same ones used earlier as the second half of the prefix.
 
 ![](https://biof-git.colorado.edu/dowelllab/DAStk/raw/master/doc_files/sample_MA_plot.png)
+
+* `barcode plot` of each of these statistically significat motif differences that depicts how close the ATAC-seq peak centers were to the motif centers, within a 1500 base-pair radius of the motif center.
+
 ![](https://biof-git.colorado.edu/dowelllab/DAStk/raw/master/doc_files/sample_barcode_plot.png)
