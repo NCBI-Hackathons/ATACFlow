@@ -76,8 +76,8 @@ Single-end data will have slightly different file names and only one FastQ file 
 
 **Output directory: `results/bowtie2`**
 
-    sample.sam
-        Alignment sam file
+* `sample.sam`
+  * Alignment sam file
 
 
 
@@ -87,9 +87,10 @@ Single-end data will have slightly different file names and only one FastQ file 
 
 **Output directory: `results/samtools`**
 
-    sample.sorted.bam
-        sorted bam file
-    sample.sorted.bam.flagstat
+* `sample.sorted.bam`
+  * Sorted bam file
+* `sample.sorted.bam.flagstat`
+  * Flagstat of the bam file
 
 
 ## bedtools
@@ -98,8 +99,8 @@ Single-end data will have slightly different file names and only one FastQ file 
 
 **Output directroy: `results/bedtools`**
  
-    sample.sorted.bed
-        BedGraph copies (easier for data analysis)
+* 'sample.sorted.bed'
+  * BedGraph copies (easier for data analysis)
 
 
 
@@ -109,8 +110,8 @@ Single-end data will have slightly different file names and only one FastQ file 
 
 **Output directory: `results/igvtools`**
  
-    sample.tdf
-        binary tiled tdf data file
+* `sample.tdf`
+  * binary tiled tdf data file
 
 
 
