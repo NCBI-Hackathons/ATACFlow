@@ -53,24 +53,23 @@ MultiQC reports the percentage of bases removed by TrimGalore in the General Sta
 
 Contains FastQ files with quality and adapter trimmed reads for each sample, along with a log file describing the trimming.
 
-    sample_val_1.fq.gz, sample_val_2.fq.gz
-        Trimmed FastQ data, reads 1 and 2.
-    sample_val_1.fastq.gz_trimming_report.txt
-        Trimming report (describes which parameters that were used)
-    sample_val_1_fastqc.html
-    sample_val_1_fastqc.zip
-        FastQC report for trimmed reads
+* `sample_val_1.fq.gz`, `sample_val_2.fq.gz`
+  * Trimmed FastQ data, reads 1 and 2.
+* `sample_val_1.fastq.gz_trimming_report.txt`
+  * Trimming report (describes which parameters that were used)
+* `sample_val_1_fastqc.html`
+* `sample_val_1_fastqc.zip`
+  * FastQC report for trimmed reads
 
 Single-end data will have slightly different file names and only one FastQ file per sample:
 
-    sample_trimmed.fq.gz
-        Trimmed FastQ data
-    sample.fastq.gz_trimming_report.txt
-        Trimming report (describes which parameters that were used)
-    sample_trimmed_fastqc.html
-    sample_trimmed_fastqc.zip
-        FastQC report for trimmed reads
-
+* `sample_trimmed.fq.gz`
+  * Trimmed FastQ data
+* `sample.fastq.gz_trimming_report.txt`
+  * Trimming report (describes which parameters that were used)
+* `sample_trimmed_fastqc.html`
+* `sample_trimmed_fastqc.zip`
+  * FastQC report for trimmed reads
 
 ## bowtie2
 [bowtie2](http://bowtie-bio.sf.net/bowtie2) is used to produce raw bam files, followed by various filtering steps (mappability and quality) to produce filtered bams.
