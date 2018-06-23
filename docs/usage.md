@@ -139,7 +139,7 @@ The output directory where the results will be saved.
 ### `--email`
 Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to speicfy this on the command line for every run.
 
-### `-name`
+### `--name`
 Name for the pipeline run. If not specified, Nextflow will automatically generate a random mnemonic.
 
 This is used in the MultiQC report (if not default) and in the summary HTML / e-mail (always).
