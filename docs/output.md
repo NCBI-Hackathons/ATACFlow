@@ -17,6 +17,7 @@ and processes data using the following steps:
 * [Bedtools](#bedtools) --version 2.25.0 - enables genome arithmetic
 * [Igvtools](#igvtools) --version 2.3.75 - preprocessing the data and visualization 
 * [MACS2](#macs2) --version 2.1.1.20160309 - calling peaks
+* [DAStk](#DAStk) - differential ATAC-Seq analysis 
 
 ## FastQC
 [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your reads. It provides information about the quality score distribution across your reads, the per base sequence content (%T/A/G/C). You get information about adapter contamination and other overrepresented sequences.
@@ -152,5 +153,5 @@ As input, MACS2 takes the alignment files produced in the previous steps. Howeve
 
 ## DAStk
 
-[DAstk](https://biof-git.colorado.edu/dowelllab/DAStk) is a differential ATAC-seq toolkit, can be used to identify changes in TF activity across differential ATAC-seq datasets.
+[DAStk](https://biof-git.colorado.edu/dowelllab/DAStk) is a differential ATAC-seq toolkit, can be used to identify changes in TF activity across differential ATAC-seq datasets.
 
