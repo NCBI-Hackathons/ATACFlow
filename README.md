@@ -35,7 +35,6 @@ This pipeline was written by ATACFlow Team @ [RMGCH-18](https://hackathon.colora
 
 * Ignacio Tripodi (ignacio.tripodi at colorado.edu): Computer Scientist, closet wet-lab enthusiast
 * Steve Tsang (hsinyi.tsang at nih.gov): Computational Biologist
-* Julie Garcia (julie.perilla at gmail.com): 
 * Jingjing Zhao (jjzhao123 at gmail.com):
 * Evan Floden (evanfloden at gmail.com): Workflow Wrangler
-* Chi Zhang (chzh1418 at colorado.edu)
+* Chi Zhang (chzh1418 at colorado.edu): 
