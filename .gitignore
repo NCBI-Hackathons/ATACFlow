@@ -1,3 +1,7 @@
+notebook/.nextflow*
+notebook/.ipynb_checkpoints
+notebook/work/
+notebook/results/
 .nextflow*
 work/
 data/
