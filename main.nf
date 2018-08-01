@@ -12,7 +12,7 @@
  Julie Garcia <julie.perilla@gmail.com>
  Steve Tsang <stevehtsang@gmail.com>
  Jingjing Zhao <jjzhao123@gmail.com>
- Evan Floden <evanfloden@gmail.com> 
+ Evan Floden <evanfloden@gmail.com>
  Chi Zhang <chzh1418@colorado.edu>
 ----------------------------------------------------------------------------------------
 */
@@ -31,7 +31,7 @@ def helpMessage() {
 
     Mandatory arguments:
       --reads                       Path to input data (must be surrounded with quotes)
-      --sras                        Comma seperated list of SRAs ids 
+      --sras                        Comma seperated list of SRAs ids
       --genome                      Name of iGenomes reference
       --bt2index                    Path to Bowtie2 index
       -profile                      Hardware config to use. docker / aws
@@ -90,35 +90,12 @@ if ( params.sras ){
 } else { Channel.empty().set {sra_ids_list } }
 
 
-
-
 // Has the run name been specified by the user?
 //  this has the bonus effect of catching both -name and --name
 custom_runName = params.name
 if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
   custom_runName = workflow.runName
 }
-
-process sra_fastq_dump {
-    publishDir "${params.outdir}/sra/", mode: 'copy'
-    tag "reads: $sra_id"
-
-    input:
-    val (sra_id) from sra_ids_list
-
-    output:
-    set val(sra_id), file("*.fastq") into sra_read_files
-
-    script:
-    """
-    fastq-dump --split-3 ${sra_id}
-    # TEST THIS LATER, SHOULD BE FASTER AND DEFAULTS TO --split-3
-    #fasterq-dump ${sra_id}
-    """
-} 
-
-
-
 
 /*
  * Create a channel for input read files
@@ -138,10 +115,10 @@ if(params.readPaths ){
              .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
              .into { read_files_fastqc; read_files_trimming }
      }
- } 
+ }
 else if (params.sras) {
         sra_read_files.into { read_files_fastqc; read_files_trimming }
-} 
+}
 
 else {
      Channel
@@ -178,7 +155,6 @@ summary['Working dir']      = workflow.workDir
 summary['Container Engine'] = workflow.containerEngine
 if(workflow.containerEngine) summary['Container'] = workflow.container
 summary['Current home']     = "$HOME"
-summary['Current user']     = "$USER"
 summary['Current path']     = "$PWD"
 summary['Working dir']      = workflow.workDir
 summary['Output dir']       = params.outdir
@@ -220,14 +196,34 @@ process get_software_versions {
     multiqc --version > v_multiqc.txt
     samtools --version &> v_samtools.txt
     bowtie2 --version &> v_bowtie2.txt
-    fastq-dump --version &> v_fastq-dump.txt 
-    bedtools --version &> v_bedtools.txt 
-    igvtools &> v_igv-tools.txt 
-    macs2 --version &>  v_macs2.txt 
+    fastq-dump --version &> v_fastq-dump.txt
+    bedtools --version &> v_bedtools.txt
+    igvtools &> v_igv-tools.txt
+    macs2 --version &>  v_macs2.txt
     scrape_software_versions.py > software_versions_mqc.yaml
     """
 }
 
+/*
+ * STEP 0 - Dump SRAs
+ */
+
+process sra_fastq_dump {
+    tag "reads: $sra_id"
+
+    input:
+    val (sra_id) from sra_ids_list
+
+    output:
+    set val(sra_id), file("*.fastq") into sra_read_files
+
+    script:
+    """
+    fastq-dump --split-3 ${sra_id}
+    # TEST THIS LATER, SHOULD BE FASTER AND DEFAULTS TO --split-3
+    #fasterq-dump ${sra_id}
+    """
+}
 
 /*
  * STEP 1 - Trim Galore
@@ -235,7 +231,7 @@ process get_software_versions {
 
 process trim_galore {
     tag "$name"
-    publishDir "${params.outdir}/trim_galore/", mode: 'copy', pattern: '*fq.gz'
+    //publishDir "${params.outdir}/trim_galore/", mode: 'copy', pattern: '*fq.gz'
 
     input:
     set val(name), file(reads) from read_files_trimming
@@ -284,13 +280,13 @@ process fastqc {
  *
  * process buildIndex {
  *   tag "$genome_file.baseName"
- *   
+ *
  *   input:
  *   file genome from genome_file
- *    
+ *
  *   output:
  *   file 'genome.index*' into genome_index
- *      
+ *
  *   """
  *   bowtie2-build ${genome} genome.index
  *   """
@@ -304,15 +300,15 @@ process fastqc {
 process bowtie2 {
     tag "$name"
     publishDir "${params.outdir}/bowtie2/", mode: 'copy', pattern: "${name}.sam"
-  
+
     input:
     val(bt2_prefix) from bt2_index
     file(indices) from bt2_indices
     set val(name), file(trimmed_reads) from trimmed_reads_ch
-   
+
     output:
     set val(name), file("${name}.sam") into mapped_sam_file_ch
-    
+
     script:
     """
     bowtie2 -p32 \
@@ -332,20 +328,20 @@ process bowtie2 {
 process samtools {
     tag "$name"
     publishDir "${params.outdir}/samtools/", mode: 'copy', pattern: "${name}.sorted.bam"
-  
+
     input:
     set val(name), file(mapped_sam) from mapped_sam_file_ch
-   
+
     output:
     set val(name), file("${name}.sorted.bam") into sorted_bam_ch
-    set val(name), file("${name}.sorted.bam.flagstat") into flagstat_ch   
+    set val(name), file("${name}.sorted.bam.flagstat") into flagstat_ch
 
     script:
     """
-    samtools view -q 20 -S -b -o ${name}.bam ${mapped_sam} 
+    samtools view -q 20 -S -b -o ${name}.bam ${mapped_sam}
     samtools view -cF 0x100 ${mapped_sam} > ${name}.millionsmapped
     samtools sort -m500G -o ${name}.sorted.bam ${name}.bam
-    samtools flagstat ${name}.bam > ${name}.bam.flagstat 
+    samtools flagstat ${name}.bam > ${name}.bam.flagstat
     samtools index ${name}.sorted.bam
     samtools flagstat ${name}.sorted.bam > ${name}.sorted.bam.flagstat
     """
@@ -365,7 +361,7 @@ process bedtools {
 
     input:
     set val(name), file(bam_file) from sorted_bams_for_bedtools
-    file(chrom_sizes) from chrom_sizes   
+    file(chrom_sizes) from chrom_sizes
 
     output:
     set val(name), file("${name}.sorted.bed") into bed_file_ch
@@ -392,7 +388,7 @@ bed_file_ch
 
 process normalise_counts {
     tag "$name"
- 
+
     input:
     set val(name), file(sorted_bed), file(flagstat) from bed_and_flagset_ch
 
@@ -404,7 +400,7 @@ process normalise_counts {
     readcount_corrected_geneomeBedgraphs.py ${flagstat} ${sorted_bed}
     """
 }
- 
+
 
 /*
  *STEP X - IGV Tools
@@ -419,7 +415,7 @@ process igvtools {
     file(genome)
 
     output:
-    set val(name), file("${name}.tdf") into tiled_data_ch 
+    set val(name), file("${name}.tdf") into tiled_data_ch
 
     script:
     """
@@ -440,7 +436,7 @@ process macs2 {
     set val(name), file(sorted_bam) from sorted_bams_for_macs2
 
     output:
-    set val(name), file("${name}") into macs2_ch 
+    set val(name), file("${name}") into macs2_ch
 
     script:
     """
@@ -467,10 +463,10 @@ process macs2 {
 *
 *    input:
 *    file(tf_motifs_dir)
-*    set val(name), file(peaks_file) from macs2_ch 
+*    set val(name), file(peaks_file) from macs2_ch
 *
 *    output:
-*    set val(name), file("${name}") into dastk_ch 
+*    set val(name), file("${name}") into dastk_ch
 *
 *    script:
 *    """
