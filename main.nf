@@ -89,6 +89,9 @@ if ( params.sras ){
   sra_ids_list = params.sras.tokenize(",")
 } else { Channel.empty().set {sra_ids_list } }
 
+
+
+
 // Has the run name been specified by the user?
 //  this has the bonus effect of catching both -name and --name
 custom_runName = params.name
@@ -96,7 +99,7 @@ if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
   custom_runName = workflow.runName
 }
 
-process sra_mapping {
+process sra_fastq_dump {
     publishDir "${params.outdir}/sra/", mode: 'copy'
     tag "reads: $sra_id"
 
@@ -163,6 +166,7 @@ summary['Pipeline Name']    = 'NCBI-Hackathons/ATACFlow'
 summary['Pipeline Version'] = params.version
 summary['Run Name']         = custom_runName ?: workflow.runName
 summary['Reads']            = params.reads
+summary['SRA Ids']          = params.sras
 summary['Genome Ref']       = params.genome
 summary['Bowtie2 Index']    = params.bt2index
 summary['Data Type']        = params.singleEnd ? 'Single-End' : 'Paired-End'
