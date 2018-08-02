@@ -97,6 +97,29 @@ if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
   custom_runName = workflow.runName
 }
 
+
+/*
+ * STEP 0 - Dump SRAs
+ */
+
+process sra_fastq_dump {
+    tag "reads: $sra_id"
+
+    input:
+    val (sra_id) from sra_ids_list
+
+    output:
+    set val(sra_id), file("*.fastq") into sra_read_files
+
+    script:
+    """
+    fastq-dump --split-3 ${sra_id}
+    # TEST THIS LATER, SHOULD BE FASTER AND DEFAULTS TO --split-3
+    #fasterq-dump ${sra_id}
+    """
+}
+
+
 /*
  * Create a channel for input read files
  */
@@ -204,26 +227,6 @@ process get_software_versions {
     """
 }
 
-/*
- * STEP 0 - Dump SRAs
- */
-
-process sra_fastq_dump {
-    tag "reads: $sra_id"
-
-    input:
-    val (sra_id) from sra_ids_list
-
-    output:
-    set val(sra_id), file("*.fastq") into sra_read_files
-
-    script:
-    """
-    fastq-dump --split-3 ${sra_id}
-    # TEST THIS LATER, SHOULD BE FASTER AND DEFAULTS TO --split-3
-    #fasterq-dump ${sra_id}
-    """
-}
 
 /*
  * STEP 1 - Trim Galore
