@@ -9,7 +9,6 @@
  #### Authors
  ATACFlow Team @ RMGCH-18 NCBI-Hackathons - https://github.com/NCBI-Hackathons>
  Ignacio Tripodi <ignacio.tripodi@colorado.edu>
- Julie Garcia <julie.perilla@gmail.com>
  Steve Tsang <stevehtsang@gmail.com>
  Jingjing Zhao <jjzhao123@gmail.com>
  Evan Floden <evanfloden@gmail.com>
@@ -50,7 +49,7 @@ def helpMessage() {
  * SET UP CONFIGURATION VARIABLES
  */
 
-// Show help emssage
+// Show help message
 if (params.help){
     helpMessage()
     exit 0
@@ -81,8 +80,8 @@ if ( params.chrom_sizes ){
     if( !chrom_sizes.exists() ) exit 1, "Genome chrom sizes file not found: ${params.chrom_sizes}"
 }
 
-if ( params.tf_motif_sites ){
-    tf_motifs_dir = file("${params.tf_motif_sites}")
+if ( params.trimmomatic_jar_path ){
+    trimmomatic_jar_path = file("${params.trimmomatic_jar_path}")
 }
 
 if ( params.sras ){
@@ -99,51 +98,37 @@ if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
 
 
 /*
- * STEP 0 - Dump SRAs
- */
-
-process sra_fastq_dump {
-    tag "reads: $sra_id"
-
-    input:
-    val (sra_id) from sra_ids_list
-
-    output:
-    set val(sra_id), file("*.fastq") into sra_read_files
-
-    script:
-    """
-    fastq-dump --split-3 ${sra_id}
-    # TEST THIS LATER, SHOULD BE FASTER AND DEFAULTS TO --split-3
-    #fasterq-dump ${sra_id}
-    """
-}
-
-
-/*
  * Create a channel for input read files
  */
-
-if(params.readPaths ){
-     if(params.singleEnd){
-         Channel
-             .from(params.readPaths)
-             .map { row -> [ row[0], [file(row[1][0])]] }
-             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-             .into { read_files_fastqc; read_files_trimming }
-     } else {
-         Channel
-             .from(params.readPaths)
-             .map { row -> [ row[0], [file(row[1][0]), file(row[1][1])]] }
-             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-             .into { read_files_fastqc; read_files_trimming }
-     }
- }
-else if (params.sras) {
-        sra_read_files.into { read_files_fastqc; read_files_trimming }
+if (params.fastq_dir_pattern) {
+    fastq_reads_for_qc = Channel
+                        .fromPath(params.fastq_dir_pattern)
+                        .map { file -> tuple(file.baseName, file) }
+    fastq_reads_for_trim = Channel
+                                          .fromPath(params.fastq_dir_pattern)
+                                          .map { file -> tuple(file.baseName, file) }
+}
+else {
+    Channel
+        .empty()
+        .into { fastq_reads_for_qc; fastq_reads_for_trim }
 }
 
+if (params.sra_dir_pattern) {
+    println("pattern for SRAs provided")
+    read_files_sra = Channel
+                        .fromPath(params.sra_dir_pattern)
+                        .map { file -> tuple(file.baseName, file) }
+}
 else {
+    read_files_sra = Channel.empty()
+}
+
+if (params.sras) {
+        sra_strings.into { read_files_fastqc; read_files_trimming }
+}
+
+if (params.sra_dir_pattern == "" && params.fastq_dir_pattern == "") {
      Channel
          .fromFilePairs( params.reads, size: params.singleEnd ? 1 : 2 )
          .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --singleEnd on the command line." }
@@ -166,8 +151,8 @@ summary['Pipeline Name']    = 'NCBI-Hackathons/ATACFlow'
 summary['Pipeline Version'] = params.version
 summary['Run Name']         = custom_runName ?: workflow.runName
 summary['Reads']            = params.reads
-summary['SRA Ids']          = params.sras
 summary['Genome Ref']       = params.genome
+summary['Thread fqdump']    = params.threadfqdump ? 'YES' : 'NO'
 summary['Bowtie2 Index']    = params.bt2index
 summary['Data Type']        = params.singleEnd ? 'Single-End' : 'Paired-End'
 summary['Max Memory']       = params.max_memory
@@ -178,6 +163,7 @@ summary['Working dir']      = workflow.workDir
 summary['Container Engine'] = workflow.containerEngine
 if(workflow.containerEngine) summary['Container'] = workflow.container
 summary['Current home']     = "$HOME"
+summary['Current user']     = "$USER"
 summary['Current path']     = "$PWD"
 summary['Working dir']      = workflow.workDir
 summary['Output dir']       = params.outdir
@@ -207,15 +193,25 @@ try {
  */
 process get_software_versions {
 
+    input:
+    file(trimmomatic_jar_path)
+
     output:
     file 'software_versions_mqc.yaml' into software_versions_yaml
 
     script:
     """
+    module load sra/2.8.0
+    module load igvtools/2.3.75
+    module load fastqc/0.11.5
+    module load bedtools/2.25.0
+    module load bowtie/2.2.9
+    module load samtools/1.8
+
     echo $params.version > v_pipeline.txt
     echo $workflow.nextflow.version > v_nextflow.txt
     fastqc --version > v_fastqc.txt
-    trim_galore --version &> v_trim_galore.txt
+    java -XX:ParallelGCThreads=1 -jar ${trimmomatic_jar_path} -version &> v_trimmomatic.txt
     multiqc --version > v_multiqc.txt
     samtools --version &> v_samtools.txt
     bowtie2 --version &> v_bowtie2.txt
@@ -228,29 +224,86 @@ process get_software_versions {
 }
 
 
-/*
- * STEP 1 - Trim Galore
- */
-
-process trim_galore {
-    tag "$name"
-    //publishDir "${params.outdir}/trim_galore/", mode: 'copy', pattern: '*fq.gz'
+process sra_dump {
+    publishDir "${params.outdir}/fastq/", mode: 'copy', pattern: '*.fastq'
+    tag "$fname"
+    if (params.threadfqdump) {
+        cpus 8 }
+    else { 
+        cpus 1
+    }
 
     input:
-    set val(name), file(reads) from read_files_trimming
+    set val(fname), file(reads) from read_files_sra
 
     output:
-    set val(name), file("*.fq.gz") into trimmed_reads_ch
-    file "*trimming_report.txt" into trimgalore_results
+    set val(fname), file("*.fastq") into fastq_reads_for_trim_from_sra
+    set val(fname), file("*.fastq") into fastq_reads_for_qc_from_sra
+
+/* Updated to new version of sra tools which has "fasterq-dump" -- automatically splits files that have multiple reads 
+  * (i.e. paired-end data) and is much quicker relative to fastq-dump. Also has multi-threading (currently set with -e 8) 
+  * and requires a temp directory which is set to the nextflow temp directory
+  */
+
+    script:
+    if (!params.threadfqdump) {
+        """
+        module load sra/2.9.2
+        echo ${fname}
+
+        fastq-dump --split-3 ${reads}
+        """
+    } else {
+        """
+        export PATH=~/.local/bin:$PATH
+        module load sra/2.9.2
+        module load python/3.6.3
+
+        parallel-fastq-dump \
+            --threads 8 \
+            --sra-id ${reads}
+        """
+    }
+}
+
+//fastq_read_files
+//   .into {fastq_reads_for_trim; fastq_reads_for_qc}
+
+
+/*
+ * STEP 1 - Trimmomatic
+ */
+
+process trimmomatic {
+    memory '200 GB'
+    time '12h'
+    tag "$name"
+    publishDir "${params.outdir}/trimmomatic/", mode: 'copy', pattern: '*_trimmed.fastq'
+
+    input:
+    file(trimmomatic_jar_path)
+    set val(name), file(reads) from fastq_reads_for_trim.mix(fastq_reads_for_trim_from_sra)
+
+    output:
+    set val(name), file("*_trimmed.fastq") into trimmed_reads_ch
+//    file "*trimming_report.txt" into trimmomatic_results
 
     script:
     if (params.singleEnd) {
         """
-        trim_galore --gzip $reads
+        java -XX:ParallelGCThreads=1 -jar ${trimmomatic_jar_path} SE \
+             -phred33 -trimlog ${name}.trimlog \
+             ${reads[0]} ${name}_trimmed.fastq \
+             LEADING:20 TRAILING:20 SLIDINGWINDOW:4:20 MINLEN:36
         """
     } else {
         """
-        trim_galore --paired --gzip $reads
+        java -XX:ParallelGCThreads=1 -jar ${trimmomatic_jar_path} PE \
+             -phred33 -trimlog ${name}.trimlog \
+             ${name}_1.fastq ${name}_2.fastq \
+             ${name}_1_trimmed.fastq ${name}_1_trimmed_unpaired.fastq \
+             ${name}_2_trimmed.fastq ${name}_2_trimmed_unpaired.fastq \
+             LEADING:20 TRAILING:20 SLIDINGWINDOW:4:20 MINLEN:36
         """
     }
 }
@@ -266,13 +319,15 @@ process fastqc {
         saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
 
     input:
-    set val(name), file(reads) from read_files_fastqc
+    set val(name), file(reads) from fastq_reads_for_qc.mix(fastq_reads_for_qc_from_sra)
 
     output:
     file "*_fastqc.{zip,html}" into fastqc_results
 
     script:
     """
+    module load fastqc/0.11.5
+
     fastqc -q $reads
     """
 }
@@ -299,9 +354,11 @@ process fastqc {
 
 /*
  * STEP 4 - Map reads to reference genome
+ *          TODO: SUPPORT SINGLE-END READS
  */
 process bowtie2 {
     tag "$name"
+    cpus 32
     publishDir "${params.outdir}/bowtie2/", mode: 'copy', pattern: "${name}.sam"
 
     input:
@@ -314,8 +371,10 @@ process bowtie2 {
 
     script:
     """
-    bowtie2 -p32 \
-            -X 2000 \
+    module load bowtie/2.2.9
+
+    bowtie2 -X 2000 \
+            -p 32 \
             -x $bt2_prefix \
             -1 ${trimmed_reads[0]} \
             -2 ${trimmed_reads[1]} \
@@ -330,6 +389,9 @@ process bowtie2 {
 
 process samtools {
     tag "$name"
+    cpus 32
+    memory '500 GB'
+    time '96h'
     publishDir "${params.outdir}/samtools/", mode: 'copy', pattern: "${name}.sorted.bam"
 
     input:
@@ -341,11 +403,13 @@ process samtools {
 
     script:
     """
-    samtools view -q 20 -S -b -o ${name}.bam ${mapped_sam}
-    samtools view -cF 0x100 ${mapped_sam} > ${name}.millionsmapped
-    samtools sort -m500G -o ${name}.sorted.bam ${name}.bam
+    module load samtools/1.8
+
+    samtools view -S -b ${mapped_sam} -o ${name}.bam
     samtools flagstat ${name}.bam > ${name}.bam.flagstat
+    samtools sort -m500G -o ${name}.sorted.bam ${name}.bam
     samtools index ${name}.sorted.bam
+    samtools view -cF 0x100 ${mapped_sam} > ${name}.millionsmapped
     samtools flagstat ${name}.sorted.bam > ${name}.sorted.bam.flagstat
     """
 }
@@ -360,24 +424,23 @@ sorted_bam_ch
 
 process bedtools {
     tag "$name"
-    publishDir "${params.outdir}/bedtools/", mode: 'copy', pattern: "${name}.sorted.bed"
+    memory '200 GB'
+    time '12h'
+    publishDir "${params.outdir}/bedtools/", mode: 'copy', pattern: "${name}.sorted.BedGraph"
 
     input:
     set val(name), file(bam_file) from sorted_bams_for_bedtools
     file(chrom_sizes) from chrom_sizes
 
     output:
-    set val(name), file("${name}.sorted.bed") into bed_file_ch
+    set val(name), file("${name}.sorted.BedGraph") into bed_file_ch
 
     script:
     """
-    genomeCoverageBed -bg \
-                      -ibam ${bam_file} \
-                      -g ${chrom_sizes} \
-                      > ${name}.bed
+    module load bedtools/2.25.0
 
-    bedtools sort -i ${name}.bed \
-                   > ${name}.sorted.bed
+    genomeCoverageBed -bg -ibam ${bam_file} -g ${chrom_sizes} > ${name}.BedGraph
+    bedtools sort -i ${name}.BedGraph > ${name}.sorted.BedGraph
     """
  }
 
@@ -389,14 +452,15 @@ bed_file_ch
  * STEP X - Normalise Counts
  */
 
-process normalise_counts {
+process normalize_counts {
     tag "$name"
+    publishDir "${params.outdir}/bedtools/", mode: 'copy', pattern: "${name}.sorted.mp.BedGraph"
 
     input:
     set val(name), file(sorted_bed), file(flagstat) from bed_and_flagset_ch
 
     output:
-    set val(name), file("${name}.sorted.mp.BedGraph") into normalised_bed_ch
+    set val(name), file("${name}.sorted.mp.BedGraph") into normalized_bed_ch
 
     script:
     """
@@ -411,10 +475,13 @@ process normalise_counts {
 
 process igvtools {
     tag "$name"
+    errorStrategy 'ignore'
+    // Need to play with this upper boundary a bit... igvtools can be a memory hog
+    memory '8 GB'
     publishDir "${params.outdir}/igv_tools/", mode: 'copy', pattern: "${name}.tdf"
 
     input:
-    set val(name), file(normalised_bed) from normalised_bed_ch
+    set val(name), file(normalized_bed) from normalized_bed_ch
     file(genome)
 
     output:
@@ -422,7 +489,9 @@ process igvtools {
 
     script:
     """
-    igvtools toTDF ${normalised_bed} ${name}.tdf ${genome}
+    module load igvtools/2.3.75
+
+    JAVA_OPTS="-Xmx8000m" igvtools toTDF ${normalized_bed} ${name}.tdf ${genome}
     """
  }
 
@@ -433,13 +502,16 @@ process igvtools {
 
 process macs2 {
     tag "$name"
-    publishDir "${params.outdir}/macs2/", mode: 'copy', pattern: "${name}"
+    cpus 8
+    memory '2 GB'
+    time '3h'
+    publishDir "${params.outdir}/macs2/", mode: 'copy', pattern: "${name}_peaks_clean.broadPeak"
 
     input:
     set val(name), file(sorted_bam) from sorted_bams_for_macs2
 
     output:
-    set val(name), file("${name}") into macs2_ch
+    set val(name), file("${name}_peaks_clean.broadPeak") into macs2_ch
 
     script:
     """
@@ -450,36 +522,43 @@ process macs2 {
                    --shift -100 \
                    --extsize 200 \
                    -B \
-                   --broad \
-                   --outdir ${name}
+                   --broad
+    bedtools intersect -a ${name}_peaks.broadPeak \
+                       -b {params.region_blacklist} \
+                       -v \
+                       > ${name}_peaks_clean.broadPeak
+
     """
  }
 
 
 /*
  *STEP X - Calculate MD-scores
- *
- *
-*process process_atac {
-*    tag "$name"
-*    publishDir "${params.outdir}/md_scores/", mode: 'copy', pattern: "${name}"
-*
-*    input:
-*    file(tf_motifs_dir)
-*    set val(name), file(peaks_file) from macs2_ch
-*
-*    output:
-*    set val(name), file("${name}") into dastk_ch
-*
-*    script:
-*    """
-*    process_atac --prefix '${name}_CONDITION' \
-*		 --threads ${task.cpus}
-*		 --atac-peaks ${peaks_file} \
-*		 --motif-path ${tf_motifs_dir}
-*    """
-* }
+ *         NOTE: Since we only have the SRA number as an identifier,
+ *         the file should be renamed later with the proper condition
+ *         name to replace "CONDITION" (e.g. "DMSO", "wildtype", "DrugTreated4hr", etc)
 */
+process process_atac {
+    tag "$name"
+    cpus 12
+    memory '500 GB'
+    time '6h'
+    publishDir "${params.outdir}/md_scores/", mode: 'copy', pattern: "${name}*md_scores.txt"
+
+    input:
+    set val(name), file(peaks_file) from macs2_ch
+
+    output:
+    set val(name), file("${name}*md_scores.txt") into dastk_ch
+
+    script:
+    """
+    process_atac --prefix '${name}_CONDITION' \
+		 --threads 12 \
+		 --atac-peaks ${peaks_file} \
+		 --motif-path ${params.tf_motif_sites}
+    """
+}
 
 
 /*
@@ -491,7 +570,7 @@ process multiqc {
     input:
     file multiqc_config
     file ('fastqc/*') from fastqc_results.collect()
-    file ('trimgalore/*') from trimgalore_results.collect()
+//    file ('trimmomatic/*') from trimmomatic_results.collect()
     file ('software_versions/*') from software_versions_yaml
 
     output:
@@ -575,7 +654,7 @@ workflow.onComplete {
     def email_html = html_template.toString()
 
     // Render the sendmail template
-    def smail_fields = [ email: params.email, subject: subject, email_txt: email_txt, email_html: email_html, baseDir: "$baseDir" ]
+    def smail_fields = [ email: params.email, subject: subject, email_txt: email_txt, email_html: email_html, baseDir: "$baseDir", attach1: "$baseDir/results/Documentation/pipeline_report.html", attach2: "$baseDir/results/pipeline_info/NCBI-Hackathons/ATACFlow_report.html", attach3: "$baseDir/results/pipeline_info/NCBI-Hackathons/ATACFlow_timeline.html" ]
     def sf = new File("$baseDir/assets/sendmail_template.txt")
     def sendmail_template = engine.createTemplate(sf).make(smail_fields)
     def sendmail_html = sendmail_template.toString()
