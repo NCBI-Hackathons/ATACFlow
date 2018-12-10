@@ -18,6 +18,10 @@ NCBI-Hackathons/ATACFlow: This pipeline performs ATAC Seq using Nextflow
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker / singularity containers making installation trivial and results highly reproducible.
 
 
+### Reference
+Have you found this pipeline useful to your research? You can cite it using DOI 10.17605/OSF.IO/UCWRH ([OSF project](https://osf.io/ucwrh/)).
+
+
 ### Documentation
 The NCBI-Hackathons/ATACFlow pipeline comes with documentation about the pipeline, found in the `docs/` directory:
 
