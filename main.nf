@@ -524,7 +524,7 @@ process macs2 {
                    -B \
                    --broad
     bedtools intersect -a ${name}_peaks.broadPeak \
-                       -b {params.region_blacklist} \
+                       -b ${params.region_blacklist} \
                        -v \
                        > ${name}_peaks_clean.broadPeak
 
